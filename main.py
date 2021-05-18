@@ -2,8 +2,20 @@
 import sqlite3
 from flask import Flask, request, url_for, render_template, flash
 from flask import g
+import jwt   # PyJWT
+import uuid
+import requests
 from flask_wtf import Form
 
+#UPBIT ACCESS
+#Access Key : dqZ29pX3nfA8KyxmiYyRt9UwzBOW4a8TwRs34Er7
+#Secret Key : V6Hd527RnXmqsEbq1qP6sMBpxw0po7zjbBwHr9L4
+payload = {
+    'access_key': 'dqZ29pX3nfA8KyxmiYyRt9UwzBOW4a8TwRs34Er7',
+    'nonce': str(uuid.uuid4()),
+}
+jwt_token = jwt.encode(payload, 'V6Hd527RnXmqsEbq1qP6sMBpxw0po7zjbBwHr9L4')
+authorization_token = 'Bearer {}'.format(jwt_token)
 # All Flask app must create an app instance like this with the name of
 # the main module:
 
@@ -40,7 +52,10 @@ def query_db(query, args=(), one=False):
 # Invoke this one with http://127.0.0.1:5000
 @app.route('/')
 def index():
-   return render_template('base.html')
+    headers = {"Authorization": authorization_token}
+    res = requests.get('https://api.upbit.com/v1/ticker?markets=KRW-ETH', headers=headers).json()
+    print(res)
+    return render_template('base.html')
 
 
 
