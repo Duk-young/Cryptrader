@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {% block head %}
+    {% endblock %}
+</head>
+<style>
+    body{
+        text-align: center;
+    }
+    .menu{
+        margin-left: 5%;
+    }
+</style>
+<body>
+{% block body %}
+<div style="text-align: center; margin: auto; height: 50px">
+    <a class='menu' href="/q1">Find a PC with Price</a>
+    <a class='menu' href="/q2">Find a Laptop with Specs</a>
+    <a class='menu' href="/q3">Find products of the manufacturer</a>
+</div>    
+<div style="text-align: center; margin: auto;">
+    <a class='menu' href="/q4">Find a PC and a Printer with your budget</a>
+    <a class='menu' href="/q5">Add a brand new PC to the database</a>
+    </div>
+{% endblock %}
+</body>
+</html>
