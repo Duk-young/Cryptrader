@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    {% block head %}
         <!--SEO Meta Tags-->
         <meta charset="utf-8" />
         <!-- SITE TITLE -->
@@ -9,25 +10,25 @@
         <meta name="keywords" content="crypto, Bootstrap, bitcoins, ethereum, dogecoin, iota, ripple, siacoin, exchange, trading platform, crypto trading">
         <meta http-equiv="X-UA-Compatible" content="IE=edge" />
         
-
         <!-- Bootstrap CSS -->
-        <link rel="stylesheet" href="app/css/bootstrap.css">
+        <link rel="stylesheet" href="{{url_for('static', filename='app/css/bootstrap.css') }}">
 
         <!-- Icon CSS -->
-        <link href="css/themify-icons.css" rel="stylesheet">
+        <link href="{{url_for('static', filename='css/themify-icons.css') }}" rel="stylesheet">
 
         <!-- FontAwesome -->
-        <link rel="stylesheet" href="plugins/fontawesome/css/font-awesome.css">
+        <link rel="stylesheet" href="{{url_for('static', filename='plugins/fontawesome/css/font-awesome.css') }}">
 
         <!-- Owl Carousel CSS -->
-        <link href="css/owl.carousel.css" rel="stylesheet">
-        <link href="css/owl.theme.default.min.css" rel="stylesheet">
+        <link href="{{url_for('static', filename='css/owl.carousel.css') }}" rel="stylesheet">
+        <link href="{{url_for('static', filename='css/owl.theme.default.min.css') }}" rel="stylesheet">
 
         <!-- Magnific-popup -->
-        <link rel="stylesheet" href="css/magnific-popup.css">
+        <link rel="stylesheet" href="{{url_for('static', filename='css/magnific-popup.css') }}">
 
         <!-- Custom styles for this template -->
-        <link rel="stylesheet" href="app/css/app.css">
+        <link rel="stylesheet" href="{{url_for('static', filename='app/css/app.css') }}">
+
 
 
         <!-- HTML5 shim and Respond.js IE8 support of HTML5 tooltipss and media queries -->
@@ -35,13 +36,13 @@
           <script src="js/html5shiv.js"></script>
           <script src="js/respond.min.js"></script>
         <![endif]-->
-        
-    </head>
+    {% endblock %}
+</head>
 
 
     <body  data-spy="scroll" data-target="#data-scroll">
 
-
+    {% block body %}
 
 
         <!-- Navbar -->
@@ -53,7 +54,7 @@
                         <i class="ti-menu"></i>
                     </button>
                     <!-- LOGO -->
-                    <a class="navbar-brand logo" href="landing.html">
+                    <a class="navbar-brand logo" href="/main">
                         <i class="fa fa-bitcoin"></i> TRADIFY
                     </a>
                 </div>
@@ -499,6 +500,6 @@
                 });
             });
         </script>
-
+    {% endblock %}
     </body>
 </html>
