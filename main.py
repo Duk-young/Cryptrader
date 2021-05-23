@@ -10,16 +10,24 @@ import json
 from flask_socketio import SocketIO, send, emit
 from eventlet import wsgi
 import eventlet
+from upbitpy import Upbitpy
+import logging
 
 DATABASE = 'deomps5.db'
-
+# UpbitPy init
+krw_markets = []
+def print_tickers(items):
+    for it in items:
+        logging.info('{}: {} won'.format(it['market'], it['trade_price']))
 
 app = Flask(__name__)
 app.config.from_object(__name__)
 socketio = SocketIO(app)
+
 #UPBIT ACCESS
 #Access Key : dqZ29pX3nfA8KyxmiYyRt9UwzBOW4a8TwRs34Er7
 #Secret Key : V6Hd527RnXmqsEbq1qP6sMBpxw0po7zjbBwHr9L4
+
 payload = {
     'access_key': 'dqZ29pX3nfA8KyxmiYyRt9UwzBOW4a8TwRs34Er7',
     'nonce': str(uuid.uuid4()),
@@ -27,12 +35,13 @@ payload = {
 jwt_token = jwt.encode(payload, 'V6Hd527RnXmqsEbq1qP6sMBpxw0po7zjbBwHr9L4')
 authorization_token = 'Bearer {}'.format(jwt_token)
 
-## Upbit Realtime Price check
+## For Upbit Realtime Price check
 try:
     import thread
 except ImportError:
     import _thread as thread
 import time
+
 
 def on_message(ws, message):
     get_message = json.loads(message)
@@ -47,11 +56,15 @@ def on_close(ws):
 
 def on_open(ws):
     def run():
-      while(True):
-        sendData = '[{"ticket":"test"},{"type":"ticker","codes":["KRW-BTC","KRW-ADA"],"isOnlySnapshot":true}]'
+        sendData = '[{"ticket":"test"},{"type":"ticker","codes":['
+        for market in krw_markets:
+            sendData += '"' + market + '"'
+            if krw_markets.index(market) != len(krw_markets)-1:
+                sendData += ','
+        sendData += '],"isOnlySnapshot":true}]'
         ws.send(sendData)
-        time.sleep(10)
-    thread.start_new_thread(run, ())
+    time.sleep(10)
+    thread.start_new_thread(on_open, (ws))
 
 # All Flask app must create an app instance like this with the name of
 # the main module:
@@ -83,20 +96,54 @@ def query_db(query, args=(), one=False):
     return (rv[0] if rv else None) if one else rv
 
 def realtime_connect():
-    ws = websocket.WebSocketApp("wss://api.upbit.com/websocket/v1",
+    """  ws = websocket.WebSocketApp("wss://api.upbit.com/websocket/v1",
                                 on_message=on_message,
                                 on_error=on_error,
                                 on_close=on_close)
     ws.on_open = on_open
     thread.start_new_thread(ws.run_forever, ())
+    """
+    url = "https://api.upbit.com/v1/ticker"
+    markets = ""
+    for market in krw_markets:
+        markets += market
+        if krw_markets.index(market) != len(krw_markets) - 1:
+            markets += ','
+    querystring = {"markets": markets}
+    headers = {"Accept": "application/json"}
+    response = requests.request("GET", url, headers=headers, params=querystring)
+    for market in response.json():
+        print(market["market"],'\'s Real Time Price: ', market["trade_price"])
+    time.sleep(10)
+    thread.start_new_thread(realtime_connect, ())
+
 # Invoke this one with http://127.0.0.1:5000
 @app.route('/')
 def index():
+    upbit = Upbitpy()
+    markets = upbit.get_market_all()
+    for market in markets:
+        if 'KRW-' in market['market']:
+            krw_markets.append(market['market'])
     realtime_connect()
 #    headers = {"Authorization": authorization_token}
 #    res = requests.get('https://api.upbit.com/v1/ticker?markets=KRW-ETH', headers=headers).json()
 #    print(res)
     return render_template('base.html')
+
+
+
+@app.route('/main')
+def main():
+    return render_template('landing.html')
+
+@app.route('/chart')
+def main():
+    return render_template('landing.html')
+
+
+
+
 
 # Flask SocketIO handler
 @socketio.on('my event')
