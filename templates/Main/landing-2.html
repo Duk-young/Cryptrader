@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    {% block head %}
         <!--SEO Meta Tags-->
         <meta charset="utf-8" />
         <!-- SITE TITLE -->
@@ -36,12 +37,14 @@
           <script src="js/html5shiv.js"></script>
           <script src="js/respond.min.js"></script>
         <![endif]-->
+        {% endblock %}
         
     </head>
 
 
     <body  data-spy="scroll" data-target="#data-scroll">
 
+        {% block body %}
 
 
 
@@ -468,6 +471,7 @@
 
             });
         </script>
+    {% endblock %}
 
     </body>
 </html>
