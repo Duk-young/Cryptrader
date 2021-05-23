@@ -15,7 +15,7 @@ import eventlet
 from upbitpy import Upbitpy
 import logging
 
-DATABASE = 'deomps5.db'
+DATABASE = 'cryptoCurrencies.db'
 # UpbitPy init
 krw_markets = []
 def print_tickers(items):
@@ -113,10 +113,12 @@ def realtime_connect():
     querystring = {"markets": markets}
     headers = {"Accept": "application/json"}
     response = requests.request("GET", url, headers=headers, params=querystring)
+    #url = "https://api.upbit.com/v1/market/all"
     toClient = {}
     for market in response.json():
-        print(market["market"],'\'s Real Time Price: ', market["trade_price"])
-        toClient[market["market"]] = market["trade_price"]
+        #print(market["market"],'\'s Real Time Price: ', market["trade_price"])
+        toClient[market["market"]] = [market["trade_price"],market["high_price"],market["low_price"],market["acc_trade_price"],market["change_rate"], market["change"]]
+    print(toClient)
     return toClient
    # handle_json(toClient,sid);
    # print("json request delivered.")
@@ -135,6 +137,11 @@ def mainPage():
 @app.route('/landing/')
 def landing():
     return render_template('landing.html')
+@app.route('/price/')
+def price():
+    coinList = query_db('SELECT * FROM Coins')
+    print(coinList);
+    return render_template('prices.html', list=coinList)
 
 @socketio.on('my event')
 def handle_my_custom_event(sid):
@@ -171,8 +178,7 @@ if __name__ == '__main__':
     for market in markets:
         if 'KRW-' in market['market']:
             krw_markets.append(market['market'])
-    #wsgi.server(eventlet.listen(('127.0.0.1', 5000)), app)
-    Tcount = ThreadCount()
+    #wsgi.server(eventlet.listen(('127.0.0.1', 5000)), app
     socketio.run(app, debug=True)
   #  app.run(debug=True)        # Debug mode will reload files when changed.
     # app.run(host='0.0.0.0')  # To make the server listen on all public IPs.
