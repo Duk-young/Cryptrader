@@ -129,10 +129,10 @@ def index():
     return render_template('base.html')
 
 # Flask SocketIO handler
-@app.route('/main')
+@app.route('/main/')
 def mainPage():
     return render_template('login.html')
-@app.route('/landing')
+@app.route('/landing/')
 def landing():
     return render_template('landing.html')
 
