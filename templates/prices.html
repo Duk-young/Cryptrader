@@ -3,10 +3,10 @@
    <head>
       <style>
          .RISE{
-           color: red;
+           color: crimson;
          }
          .FALL{
-           color: blue;
+           color: darkblue;
          }
          .EVEN{
            color: black;
@@ -351,28 +351,25 @@
     <script type="text/javascript" charset="utf-8">
     var socket = io();
     socket.on('connect', function() {
-       console.log(socket.id)
        socket.emit('my event', data=socket.id );
        setInterval(function(){ socket.emit('my event', data=socket.id ); }, 5000);
     });
     socket.on('json', function(data) {
-         console.log(data);
        for (const [key, value] of Object.entries(data)) {
-         console.log(key);
          var table = document.getElementById(key);
          table.setAttribute('class', value[5]);
-         document.getElementById(key).children[2].innerHTML = value[0];
-         document.getElementById(key).children[3].innerHTML = value[1];
-         document.getElementById(key).children[4].innerHTML = value[2];
-         document.getElementById(key).children[5].innerHTML = parseFloat(value[3]).toFixed(2);
+         document.getElementById(key).children[2].innerHTML = "&#8361;"+value[0].toLocaleString();
+         document.getElementById(key).children[3].innerHTML =  "&#8361;"+value[1].toLocaleString();
+         document.getElementById(key).children[4].innerHTML =  "&#8361;"+value[2].toLocaleString();
+         document.getElementById(key).children[5].innerHTML =  "&#8361;"+value[3].toLocaleString();
          if(value[5] == "RISE"){
-         document.getElementById(key).children[6].innerHTML = "+"+parseFloat(value[4]*100).toFixed(2)+"%";
+         document.getElementById(key).children[6].innerHTML = "+"+parseFloat(value[4]*100).toFixed(2).toLocaleString()+"%";
          }
          else if(value[5] == "FALL"){
-         document.getElementById(key).children[6].innerHTML = "-"+parseFloat(value[4]*100).toFixed(2)+"%";
+         document.getElementById(key).children[6].innerHTML = "-"+parseFloat(value[4]*100).toFixed(2).toLocaleString()+"%";
          }
          else{
-         document.getElementById(key).children[6].innerHTML = parseFloat(value[4]*100).toFixed(2)+"%";
+         document.getElementById(key).children[6].innerHTML = parseFloat(value[4]*100).toFixed(2).toLocaleString()+"%";
          }
        }
     });
