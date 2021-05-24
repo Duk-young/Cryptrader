@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="4f9d74bc-890c-46aa-8db3-414ce95b31c8" name="Default Changelist" comment="real time table completed">
+    <list default="true" id="4f9d74bc-890c-46aa-8db3-414ce95b31c8" name="Default Changelist" comment="price readability updated">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/templates/prices.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/prices.html" afterDir="false" />
     </list>
@@ -166,7 +166,14 @@
       <option name="project" value="LOCAL" />
       <updated>1621797726224</updated>
     </task>
-    <option name="localTasksCounter" value="12" />
+    <task id="LOCAL-00012" summary="price readability updated">
+      <created>1621798915670</created>
+      <option name="number" value="00012" />
+      <option name="presentableId" value="LOCAL-00012" />
+      <option name="project" value="LOCAL" />
+      <updated>1621798915670</updated>
+    </task>
+    <option name="localTasksCounter" value="13" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -192,6 +199,7 @@
     <MESSAGE value="Real time price check completed" />
     <MESSAGE value="static folder created" />
     <MESSAGE value="real time table completed" />
-    <option name="LAST_COMMIT_MESSAGE" value="real time table completed" />
+    <MESSAGE value="price readability updated" />
+    <option name="LAST_COMMIT_MESSAGE" value="price readability updated" />
   </component>
 </project>

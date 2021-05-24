@@ -300,7 +300,7 @@
                                                          <tbody></tbody>
                                                          <tfoot>
                                                          {%for coin in list%}
-                                                               <tr id={{coin[1]}}>
+                                                               <tr id={{coin[1]}} style="cursor:pointer;"onClick = "location.href='./{{coin[1]}}'">
                                                                   <th>{{coin[1]}}</th>
                                                                   <th>{{coin[0]}}</th>
                                                                   <th>Price</th>
@@ -352,12 +352,20 @@
     var socket = io();
     socket.on('connect', function() {
        socket.emit('my event', data=socket.id );
-       setInterval(function(){ socket.emit('my event', data=socket.id ); }, 5000);
+       setInterval(function(){ socket.emit('my event', data=socket.id ); }, 1000);
     });
     socket.on('json', function(data) {
        for (const [key, value] of Object.entries(data)) {
          var table = document.getElementById(key);
          table.setAttribute('class', value[5]);
+         var oldPrice = parseFloat((document.getElementById(key).children[2].innerHTML).split('₩').join('').split(',').join(''));
+         var newPrice = parseFloat(value[0]);
+         if(oldPrice < newPrice){
+           priceChange(key, "RISE");
+         }
+         else if(oldPrice > newPrice){
+           priceChange(key, "FALL");
+         }
          document.getElementById(key).children[2].innerHTML = "&#8361;"+value[0].toLocaleString();
          document.getElementById(key).children[3].innerHTML =  "&#8361;"+value[1].toLocaleString();
          document.getElementById(key).children[4].innerHTML =  "&#8361;"+value[2].toLocaleString();
@@ -373,6 +381,20 @@
          }
        }
     });
+    function priceChange(key, state){
+      var element = document.getElementById(key).children[2];
+      if(state == "RISE"){
+      element.style = " outline: 1px solid crimson";
+      }
+      else if(state == "FALL"){
+      element.style = " outline: 1px solid darkblue";
+      }
+      setTimeout(clearBorder, 1000, key);
+    }
+    function clearBorder(key){
+      var element = document.getElementById(key).children[2];
+      element.style = "outline: 0px;";
+    }
     </script>
    </body>
 </html>
