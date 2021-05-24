@@ -43,34 +43,6 @@ except ImportError:
     import _thread as thread
 import time
 
-"""
-def on_message(ws, message):
-    get_message = json.loads(message)
-    print(get_message["code"],'\'s Real Time Price: ', get_message["trade_price"])
-    handle_json(get_message);
-
-def on_error(ws, error):
-    print(error)
-
-def on_close(ws):
-    print("close")
-
-def on_open(ws):
-    def run():
-        sendData = '[{"ticket":"test"},{"type":"ticker","codes":['
-        for market in krw_markets:
-            sendData += '"' + market + '"'
-            if krw_markets.index(market) != len(krw_markets)-1:
-                sendData += ','
-        sendData += '],"isOnlySnapshot":true}]'
-        ws.send(sendData)
-    time.sleep(10)
-    thread.start_new_thread(on_open, (ws))
-
-# All Flask app must create an app instance like this with the name of
-# the main module:
-"""
-
 # DB connection
 def get_db():
     db = getattr(g, '_database', None)
@@ -117,9 +89,9 @@ def realtime_connect():
     toClient = {}
     for market in response.json():
         #print(market["market"],'\'s Real Time Price: ', market["trade_price"])
-        toClient[market["market"]] = [market["trade_price"],market["high_price"],market["low_price"],market["acc_trade_price"],market["change_rate"], market["change"]]
+        toClient[market["market"]] = [market["trade_price"],market["high_price"],market["low_price"],market["acc_trade_price"],market["prev_closing_price"],market["change_price"],market["change_rate"], market["change"]]
     print(toClient)
-    return toClient
+    return toClient #dictionary
    # handle_json(toClient,sid);
    # print("json request delivered.")
    # time.sleep(5)
@@ -166,11 +138,7 @@ class ThreadCount(object):
         return len(self)
     def join(self):
         self[0].join();
-"""
-@socketio.on('realtime')
-def realtime_data(json, methods=['GET', 'POST']):
-    socketio.send('realtime', json)
-"""
+
 # Now, run the app as a server in debug mode or public mode
 if __name__ == '__main__':
     upbit = Upbitpy()
