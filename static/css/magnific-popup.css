@@ -18,8 +18,12 @@
   z-index: 1043;
   position: fixed;
   outline: none !important;
+<<<<<<< HEAD
+  -webkit-backface-visibility: hidden; }
+=======
   -webkit-backface-visibility: hidden; 
   backface-visibility: hidden;}
+>>>>>>> 574018ede83296ade7206f68801061e3827d9666
 
 .mfp-container {
   text-align: center;

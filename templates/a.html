@@ -1,18 +1,26 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
+<!DOCTYPE htm') }}l>
+<html lang="en') }}">
+<hea') }}d>
     {% block head %}
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <meta charset="UTF-8') }}">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge') }}">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0') }}">
+    <titl') }}e>Document</titl') }}e>
     
     {% endblock %}
-</head>
-<body>
+</hea') }}d>
+<bod') }}y>
     {% block body %}
         here
-        <link rel="stylesheet" href="/static/css/magnific-popup" >
+        <link rel="stylesheet" href="{{ url_for('static', filename='/static/css/magnific-popup"') }} >
     {% endblock %}
-</body>
-</html>
+</bod') }}y>
+</htm') }}l>
+
+<link rel="stylesheet" href="{{ url_for('static', filename='app/css/bootstrap.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='plugins/fontawesome/css/font-awesome.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='plugins/animo/animate%2banimo.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='plugins/csspinner/csspinner.min.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='app/css/app.css') }}">
+<script src="{{ url_for('static', filename='plugins/modernizr/modernizr.js') }}"></script>
+<script src="{{ url_for('static', filename='plugins/fastclick/fastclick.js') }}"></script>
