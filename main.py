@@ -103,6 +103,7 @@ def realtime_connect():
     ws.on_open = on_open
     thread.start_new_thread(ws.run_forever, ())
     """
+    """
     url = "https://api.upbit.com/v1/ticker"
     markets = ""
     for market in krw_markets:
@@ -116,6 +117,7 @@ def realtime_connect():
         print(market["market"],'\'s Real Time Price: ', market["trade_price"])
     time.sleep(10)
     thread.start_new_thread(realtime_connect, ())
+    """
 
 # Invoke this one with http://127.0.0.1:5000
 @app.route('/')
@@ -131,18 +133,13 @@ def index():
 #    print(res)
     return render_template('base.html')
 
-
-
 @app.route('/main')
 def main():
     return render_template('landing.html')
 
 @app.route('/chart')
-def main():
-    return render_template('landing.html')
-
-
-
+def chart():
+    return render_template('index.html')
 
 
 # Flask SocketIO handler

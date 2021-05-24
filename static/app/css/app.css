@@ -4143,7 +4143,7 @@ div.dropdown-menu a{
     background-repeat: repeat;
 }
 .navbar-inverse {
-    background-color: #fff; !important;
+    background-color: #fff !important;
     border: none !important;
 }
 .navbar-default .navbar-toggle:hover, .navbar-default .navbar-toggle:focus {
@@ -5237,7 +5237,7 @@ select.input-sm {
 .fc-button {
     padding: 10px;
 }
-}
+
 /*Chart*/
 .highcharts-background {
   cursor:crosshair !important;
