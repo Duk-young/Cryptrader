@@ -1,5 +1,7 @@
 # Import Flask so that we can create an app instance
 import sqlite3
+import threading
+
 from flask import Flask, request, url_for, render_template, flash
 from flask import g
 import jwt   # PyJWT
@@ -13,7 +15,7 @@ import eventlet
 from upbitpy import Upbitpy
 import logging
 
-DATABASE = 'deomps5.db'
+DATABASE = 'cryptoCurrencies.db'
 # UpbitPy init
 krw_markets = []
 def print_tickers(items):
@@ -23,7 +25,6 @@ def print_tickers(items):
 app = Flask(__name__)
 app.config.from_object(__name__)
 socketio = SocketIO(app)
-
 #UPBIT ACCESS
 #Access Key : dqZ29pX3nfA8KyxmiYyRt9UwzBOW4a8TwRs34Er7
 #Secret Key : V6Hd527RnXmqsEbq1qP6sMBpxw0po7zjbBwHr9L4
@@ -42,7 +43,7 @@ except ImportError:
     import _thread as thread
 import time
 
-
+"""
 def on_message(ws, message):
     get_message = json.loads(message)
     print(get_message["code"],'\'s Real Time Price: ', get_message["trade_price"])
@@ -68,7 +69,7 @@ def on_open(ws):
 
 # All Flask app must create an app instance like this with the name of
 # the main module:
-
+"""
 
 # DB connection
 def get_db():
@@ -103,7 +104,6 @@ def realtime_connect():
     ws.on_open = on_open
     thread.start_new_thread(ws.run_forever, ())
     """
-    """
     url = "https://api.upbit.com/v1/ticker"
     markets = ""
     for market in krw_markets:
@@ -113,51 +113,72 @@ def realtime_connect():
     querystring = {"markets": markets}
     headers = {"Accept": "application/json"}
     response = requests.request("GET", url, headers=headers, params=querystring)
+    #url = "https://api.upbit.com/v1/market/all"
+    toClient = {}
     for market in response.json():
-        print(market["market"],'\'s Real Time Price: ', market["trade_price"])
-    time.sleep(10)
-    thread.start_new_thread(realtime_connect, ())
-    """
+        #print(market["market"],'\'s Real Time Price: ', market["trade_price"])
+        toClient[market["market"]] = [market["trade_price"],market["high_price"],market["low_price"],market["acc_trade_price"],market["change_rate"], market["change"]]
+    print(toClient)
+    return toClient
+   # handle_json(toClient,sid);
+   # print("json request delivered.")
+   # time.sleep(5)
+   # thread.start_new_thread(realtime_connect, (sid,))
 
 # Invoke this one with http://127.0.0.1:5000
 @app.route('/')
 def index():
+    return render_template('base.html')
+
+# Flask SocketIO handler
+@app.route('/main/')
+def mainPage():
+    return render_template('login.html')
+@app.route('/landing/')
+def landing():
+    return render_template('landing.html')
+@app.route('/price/')
+def price():
+    coinList = query_db('SELECT * FROM Coins')
+    print(coinList);
+    return render_template('prices.html', list=coinList)
+
+@socketio.on('my event')
+def handle_my_custom_event(sid):
+    print('received json: ' + str(sid))
+    #socketio.emit('json', realtime_connect())
+    socketio.emit('json', realtime_connect(), to=sid)
+@socketio.on('create table')
+def emitJson(sid):
+    socketio.emit('create table', realtime_connect(), to=sid)
+
+@socketio.on('update')
+def update(json):
+    socketio.emit('update', json, broadcast=True)
+
+
+class ThreadCount(object):
+    def __init__(self):
+        self = []
+    def append(self, thread):
+        self = [thread]
+    def getCount(self):
+        return len(self)
+    def join(self):
+        self[0].join();
+"""
+@socketio.on('realtime')
+def realtime_data(json, methods=['GET', 'POST']):
+    socketio.send('realtime', json)
+"""
+# Now, run the app as a server in debug mode or public mode
+if __name__ == '__main__':
     upbit = Upbitpy()
     markets = upbit.get_market_all()
     for market in markets:
         if 'KRW-' in market['market']:
             krw_markets.append(market['market'])
-    realtime_connect()
-#    headers = {"Authorization": authorization_token}
-#    res = requests.get('https://api.upbit.com/v1/ticker?markets=KRW-ETH', headers=headers).json()
-#    print(res)
-    return render_template('base.html')
-
-@app.route('/main')
-def main():
-    return render_template('landing.html')
-
-@app.route('/chart')
-def chart():
-    return render_template('index.html')
-
-
-# Flask SocketIO handler
-@socketio.on('my event')
-def handle_my_custom_event(json):
-    print('received json: ' + str(json))
-
-@socketio.on('json')
-def handle_json(json):
-    emit(json, json=True)
-
-@socketio.on('message')
-def handle_message(message):
-    emit('json',message)
-
-# Now, run the app as a server in debug mode or public mode
-if __name__ == '__main__':
-    wsgi.server(eventlet.listen(('127.0.0.1', 5000)), app)
-    socketio.run(app)
+    #wsgi.server(eventlet.listen(('127.0.0.1', 5000)), app
+    socketio.run(app, debug=True)
   #  app.run(debug=True)        # Debug mode will reload files when changed.
     # app.run(host='0.0.0.0')  # To make the server listen on all public IPs.
