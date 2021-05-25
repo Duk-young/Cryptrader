@@ -43,7 +43,10 @@ except ImportError:
     import _thread as thread
 import time
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> 25ba066e91fb159520af7546e0d4a9fca4d18e66
 # DB connection
 def get_db():
     db = getattr(g, '_database', None)
@@ -90,9 +93,9 @@ def realtime_connect():
     toClient = {}
     for market in response.json():
         #print(market["market"],'\'s Real Time Price: ', market["trade_price"])
-        toClient[market["market"]] = [market["trade_price"],market["high_price"],market["low_price"],market["acc_trade_price"],market["change_rate"], market["change"]]
+        toClient[market["market"]] = [market["trade_price"],market["high_price"],market["low_price"],market["acc_trade_price"],market["prev_closing_price"],market["change_price"],market["change_rate"], market["change"]]
     print(toClient)
-    return toClient
+    return toClient #dictionary
    # handle_json(toClient,sid);
    # print("json request delivered.")
    # time.sleep(5)
@@ -143,12 +146,17 @@ class ThreadCount(object):
     def getCount(self):
         return len(self)
     def join(self):
+<<<<<<< HEAD
         self[0].join()
 """
 @socketio.on('realtime')
 def realtime_data(json, methods=['GET', 'POST']):
     socketio.send('realtime', json)
 """
+=======
+        self[0].join();
+
+>>>>>>> 25ba066e91fb159520af7546e0d4a9fca4d18e66
 # Now, run the app as a server in debug mode or public mode
 if __name__ == '__main__':
     upbit = Upbitpy()
