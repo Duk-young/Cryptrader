@@ -1,9 +1,7 @@
 (function($) {
     'use strict';
 
-    var apiUrl = 'https://coincap.io';
-    var socket = io.connect('https://socket.coincap.io');
-
+  
     var dataTableWidget = null;
     var $tableWidget = $('#RealTimeCryptoPricing');
     var $pluginWrapper = $('#crypto-live--wrapper');

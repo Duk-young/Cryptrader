@@ -43,33 +43,6 @@ except ImportError:
     import _thread as thread
 import time
 
-"""
-def on_message(ws, message):
-    get_message = json.loads(message)
-    print(get_message["code"],'\'s Real Time Price: ', get_message["trade_price"])
-    handle_json(get_message);
-
-def on_error(ws, error):
-    print(error)
-
-def on_close(ws):
-    print("close")
-
-def on_open(ws):
-    def run():
-        sendData = '[{"ticket":"test"},{"type":"ticker","codes":['
-        for market in krw_markets:
-            sendData += '"' + market + '"'
-            if krw_markets.index(market) != len(krw_markets)-1:
-                sendData += ','
-        sendData += '],"isOnlySnapshot":true}]'
-        ws.send(sendData)
-    time.sleep(10)
-    thread.start_new_thread(on_open, (ws))
-
-# All Flask app must create an app instance like this with the name of
-# the main module:
-"""
 
 # DB connection
 def get_db():
@@ -140,14 +113,19 @@ def landing():
 @app.route('/price/')
 def price():
     coinList = query_db('SELECT * FROM Coins')
-    print(coinList);
+    print(coinList)
     return render_template('prices.html', list=coinList)
+@app.route('/chart/')
+def chart():
+    return render_template('index.html')
+
 
 @socketio.on('my event')
 def handle_my_custom_event(sid):
     print('received json: ' + str(sid))
     #socketio.emit('json', realtime_connect())
     socketio.emit('json', realtime_connect(), to=sid)
+
 @socketio.on('create table')
 def emitJson(sid):
     socketio.emit('create table', realtime_connect(), to=sid)
@@ -165,7 +143,7 @@ class ThreadCount(object):
     def getCount(self):
         return len(self)
     def join(self):
-        self[0].join();
+        self[0].join()
 """
 @socketio.on('realtime')
 def realtime_data(json, methods=['GET', 'POST']):
