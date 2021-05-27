@@ -198,6 +198,9 @@ cur.execute("INSERT INTO User_info VALUES ( 1, 10000000)")
 cur.execute("INSERT INTO User_holding VALUES ( 1, 'KRW-MLK', 2516, 828.73502754)")
 cur.execute("INSERT INTO User_holding VALUES ( 1, 'KRW-CRO', 306, 1269.77360992)")
 
+cur.execute("INSERT INTO User_login VALUES ( 2,'test', 'test')")
+cur.execute("INSERT INTO User_info VALUES ( 2, 10000000)")
+cur.execute("INSERT INTO User_holding VALUES ( 2, 'KRW-DOGE', 50, 99999999)")
 
 # Save (commit) the changes
 conn.commit()

@@ -24,78 +24,8 @@
             <button type="button" class="btn btn-labeled btn-primary pull-right">
                <span class="btn-label"><i class="fa fa-dollar"></i>
                </span>Goto Wallet</button>
-            <h3>Dashboard
+            <h3>{{g.user[1]}}'s Portfolio
             </h3>
-            <div class="row">
-               <div class="col-md-9">
-                  <!-- First Row Starts Here -->
-                  <div class="row">
-                     <div class="col-lg-3 col-sm-6">
-                        <div data-toggle="play-animation" data-play="fadeInDown" data-offset="0" data-delay="100"
-                           class="panel widget">
-                           <div class="panel-body bg-primary">
-                              <div class="row row-table row-flush">
-                                 <div class="col-xs-12">
-                                    <p class="mb0">$759,781,417.92 <em class="fa fa-level-up">
-                                       </em>
-                                    </p>
-                                    <h4 class="m0">Market Cap</h4>
-                                    <span class="m-t-10"><i class="fa fa-dollar"></i> Total Market Capital
-                                    </span>
-                                 </div>
-                              </div>
-                           </div>
-                        </div>
-                     </div>
-                     <div class="col-lg-3 col-sm-6">
-                        <div data-toggle="play-animation" data-play="fadeInDown" data-offset="0" data-delay="500"
-                           class="panel widget">
-                           <div class="panel-body bg-warning">
-                              <div class="row row-table row-flush">
-                                 <div class="col-xs-12">
-                                    <p class="mb0">$1,947,201.24 <em class="fa fa-level-down"></em></p>
-                                    <h4 class="m0">Trade Volume</h4>
-                                    <span class="f-left m-t-10">
-                                       <i class="fa fa-dollar"></i> 24h Trade Volume
-                                    </span>
-                                 </div>
-                              </div>
-                           </div>
-                        </div>
-                     </div>
-                     <div class="col-lg-3 col-sm-6">
-                        <div data-toggle="play-animation" data-play="fadeInDown" data-offset="0" data-delay="1000"
-                           class="panel widget">
-                           <div class="panel-body bg-danger">
-                              <div class="row row-table row-flush">
-                                 <div class="col-xs-12">
-                                    <p class="mb0">32.4 Billions <em class="fa fa-refresh"></em></p>
-                                    <h4 class="m0">Circ Supply</h4>
-                                    <span class="m-t-10">
-                                       <i class="text-c-green f-16 fa fa-refresh"></i> Circulating Supply
-                                    </span>
-                                 </div>
-                              </div>
-                           </div>
-                        </div>
-                     </div>
-                     <div class="col-lg-3 col-sm-6">
-                        <div data-toggle="play-animation" data-play="fadeInDown" data-offset="0" data-delay="1500"
-                           class="panel widget">
-                           <div class="panel-body bg-success">
-                              <div class="row row-table row-flush">
-                                 <div class="col-xs-12">
-                                    <p class="mb0">40 Billions <em class="fa fa-money"></em></p>
-                                    <h4 class="m0">Total Supply</h4>
-                                    <span class="f-left m-t-10">
-                                       <i class="fa fa-money"></i> Total Supply
-                                    </span>
-                                 </div>
-                              </div>
-                           </div>
-                        </div>
-                     </div>
-                  </div>
                   <!-- First Row Ends Here -->
                   <div class="row">
                      <div class="col-lg-12">
@@ -320,9 +250,9 @@
                               <tr id="{{coin[0]}}">
                                  <td>{{coin[0]}}</td>
                                  <td>{{coin[1]}}</td>
-                                 <td>{{coin[2]}}</td>
+                                 <td>&#8361;{{coin[2]}}</td>
                                  <td>{{coin[3]}}</td>
-                                 <td>{{(coin[2]*coin[3])|int}}</td>
+                                 <td>&#8361;{{(coin[2]*coin[3])|int}}</td>
                                  <td></td>
                                  <td></td>
                                  <td></td>
@@ -330,30 +260,6 @@
                               {% endfor %}
                            </tbody>
                         </table>
-                     </div>
-                     <div class="panel-footer">
-                        <div class="row">
-                           <div class="col-lg-2">
-                              <div class="input-group">
-                                 <input type="text" placeholder="Search" class="input-sm form-control">
-                                 <span class="input-group-btn">
-                                    <button type="button" class="btn btn-sm btn-default">Search</button>
-                                 </span>
-                              </div>
-                           </div>
-                           <div class="col-lg-8"></div>
-                           <div class="col-lg-2">
-                              <div class="input-group pull-right">
-                                 <select class="input-sm form-control">
-                                    <option value="0">Bulk action</option>
-                                    <option value="1">Cancel All</option>
-                                 </select>
-                                 <span class="input-group-btn">
-                                    <button class="btn btn-sm btn-default">Apply</button>
-                                 </span>
-                              </div>
-                           </div>
-                        </div>
                      </div>
                   </div>
                </div>
@@ -457,17 +363,19 @@ anychart.onDocumentReady(function() {
          for (const [key, value] of Object.entries(data)) {
               {% for coin in holdings %}
               if(key == "{{coin[0]}}"){
-              document.getElementById(key).children[5].innerHTML = value[0]; // trade price column
-              document.getElementById(key).children[6].innerHTML = parseInt(value[0]*{{coin[3]}}).toLocaleString(); //valuation column
+              document.getElementById(key).children[5].innerHTML = "&#8361;"+value[0]; // trade price column
+              document.getElementById(key).children[6].innerHTML = "&#8361;"+parseInt(value[0]*{{coin[3]}}).toLocaleString(); //valuation column
               var rate = ((value[0] / {{coin[2]}})-1)*100; // rate of return calculation
-              document.getElementById(key).children[7].innerHTML = rate.toFixed(2).toLocaleString() + "%";
               if(rate < 0){ // Row Color based on rate of return
+              document.getElementById(key).children[7].innerHTML = "-" + rate.toFixed(2).toLocaleString() + "%";
                document.getElementById(key).setAttribute('class', 'FALL');
               }
               else if(rate > 0){
+               document.getElementById(key).children[7].innerHTML = "+" + rate.toFixed(2).toLocaleString() + "%";
                document.getElementById(key).setAttribute('class', 'RISE');
               }
               else{
+               document.getElementById(key).children[7].innerHTML = rate.toFixed(2).toLocaleString() + "%";
                document.getElementById(key).setAttribute('class', 'EVEN');
               }
               totalAsset += parseInt(value[0]*parseFloat({{coin[3]}}));
