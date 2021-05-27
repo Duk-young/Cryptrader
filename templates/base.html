@@ -132,12 +132,12 @@
                      <em class="fa fa-user"></em>
                   </a>
                   <ul class="dropdown-menu">
-                     <li><a href="#">Profile</a>
+                     <li><a href="/profile">Profile</a>
                      </li>
                      <li><a href="#">Settings</a>
                      </li>
                      <li class="divider"></li>
-                     <li><a href="#">Logout</a>
+                     <li><a href="/signout">Logout</a>
                      </li>
                   </ul>
                </li>
@@ -151,16 +151,15 @@
                   <div data-toggle="collapse-next" class="item user-block has-submenu">
                        {% if g.user != None %}
                      <div class="user-block-picture">
-                        <img src="app/img/user/02.jpg" alt="Avatar" width="60" height="60"
+                        <img src="{{ url_for('static', filename='app/img/user/02.jpg')}}" alt="Avatar" width="60" height="60"
                            class="img-thumbnail img-circle account-img-mb">
                      </div>
                      <div class="user-block-info">
-                        <span class="user-block-name item-text">{{ g.user[0][1] }}</span>
+                        <span class="user-block-name item-text">{{ g.user[1] }}</span>
                         <span class="user-block-role"><i class="fa fa-check text-green"></i> Verified</span>
                         <div class="label label-primary"><i class="fa fa-chevron-down"></i> Account Info</div>
                         {% else %}
                         {% endif %}
-                        }
                      </div>
                   </div>
                   <!-- <ul class="nav collapse">

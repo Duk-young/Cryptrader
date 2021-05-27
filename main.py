@@ -61,7 +61,7 @@ def close_connection(exception):
 def query_db(query, args=(), one=False):
     cur = get_db().execute(query, args)
     rv = cur.fetchall()
-    print(rv)
+    print("From query: " + str(rv))
   #  tnames = []
   #  if len(rv) is not 0:
       #  for t in cur.description:
@@ -69,7 +69,26 @@ def query_db(query, args=(), one=False):
       #  rv.insert(0, tnames)
     cur.close()
     return (rv[0] if rv else None) if one else rv
-
+def realtime_holdings(holdings):
+    if len(holdings) == 0:
+        return None
+    url = "https://api.upbit.com/v1/ticker"
+    markets = ""
+    for coin in holdings:
+        markets += coin[0]
+        if holdings.index(coin) != len(holdings) - 1:
+            markets += ','
+    print(markets)
+    querystring = {"markets": markets}
+    headers = {"Accept": "application/json"}
+    response = requests.request("GET", url, headers=headers, params=querystring)
+    #url = "https://api.upbit.com/v1/market/all"
+    print(response)
+    toClient = {}
+    for market in response.json():
+        print(market["market"],'\'s Real Time Price: ', market["trade_price"])
+        toClient[market["market"]] = [market["trade_price"],market["change_rate"], market["change"]]
+    return toClient
 def realtime_connect():
     """  ws = websocket.WebSocketApp("wss://api.upbit.com/websocket/v1",
                                 on_message=on_message,
@@ -121,25 +140,27 @@ def mainPage():
             password = request.form['password']
             password_repeat = request.form['password_repeat']
             if password==password_repeat :
-                user_check = query_db('SELECT uid, uname FROM User_login WHERE uname = ? AND password = ?', [uname, password])
+                user_check = query_db('SELECT uid FROM User_login WHERE uname = ?', [uname])
                 if len(user_check) == 0:
                     uid = query_db('SELECT COUNT(*) FROM User_login')[0][0] + 1
+                    print("uid: "+ str(uid))
                     conn = get_db()
                     cur = conn.cursor()
                     cur.execute('INSERT INTO User_login (uid, uname, password) VALUES (?, ?, ?)', [uid, uname, password])
                     cur.execute('INSERT INTO User_info (uid, budget) VALUES (?, ?)', [uid, 10000000])
                     conn.commit()
                     cur.close()
+                    flash("Successfully registered! Please sign in", 'register_success')
                 else:
-                    flash("Username already exists. Please try with other user name", 'register')
+                    flash("Username already exists. Please try with other user name", 'register_fail')
             else:
-                flash("Passwords do not match", 'register')
+                flash("Passwords do not match", 'register_fail')
         else:
             uname = request.form['uname']
             password = request.form['password']
             user = query_db('SELECT uid, uname FROM User_login WHERE uname = ? AND password = ?', [uname, password])
             if len(user) != 0:
-                session['user_info'] = user
+                session['user_info'] = user[0]
                 return redirect(url_for('prices'))
             flash("Invalid username or password", 'sign_in')
     return render_template('landing.html')
@@ -162,8 +183,10 @@ def chart():
 @app.route('/profile')
 def profile():
     if g.user is None:
-        return redirect(url_for('/'))
-    return render_template('profile.html')
+        return redirect('/')
+    budget = query_db('SELECT budget FROM User_info WHERE uid = ?', [g.user[0]])[0][0]
+    holdings = query_db('SELECT code, num, avg_price FROM User_holding WHERE uid = ?', [g.user[0]])
+    return render_template('profile.html', budget=budget, holdings=holdings)
 @app.route('/signout')
 def signout():
     session.pop('user_info', None)
@@ -176,6 +199,10 @@ def handle_my_custom_event(sid):
     #socketio.emit('json', realtime_connect())
     socketio.emit('json', realtime_connect(), to=sid)
 
+@socketio.on('my holdings')
+def handle_my_holdings(holdings):
+    #print('[%s]' % ', '.join(map(str, holdings)))
+    socketio.emit('json', realtime_holdings(holdings))
 @socketio.on('create table')
 def emitJson(sid):
     socketio.emit('create table', realtime_connect(), to=sid)

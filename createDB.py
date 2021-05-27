@@ -35,11 +35,11 @@ cur.execute('''CREATE TABLE User_interests
 
 cur.execute('''DROP TABLE IF EXISTS User_holding''')
 cur.execute('''CREATE TABLE User_holding
-               (uid INTEGER, code TEXT, num INTEGER, avg_price REAL, PRIMARY KEY (uid,code), FOREIGN KEY (code) REFERENCES Coins)''')
+               (uid INTEGER, code TEXT, num REAL, avg_price REAL, PRIMARY KEY (uid,code), FOREIGN KEY (code) REFERENCES Coins)''')
 
 cur.execute('''DROP TABLE IF EXISTS Transaction_history''')
 cur.execute('''CREATE TABLE Transaction_history
-               (uid INTEGER, code TEXT, num INTEGER,price REAL, date TEXT, trade_type TEXT, status INTEGER, PRIMARY KEY (uid,code), FOREIGN KEY (uid) REFERENCES User_login, FOREIGN KEY (code) REFERENCES Coins)''')
+               (uid INTEGER, code TEXT, num REAL,price REAL, date TEXT, trade_type TEXT, status INTEGER, PRIMARY KEY (uid,code), FOREIGN KEY (uid) REFERENCES User_login, FOREIGN KEY (code) REFERENCES Coins)''')
 
 cur.execute('''DROP TABLE IF EXISTS Organization''')
 cur.execute('''CREATE TABLE Organization
@@ -195,7 +195,8 @@ cur.execute("INSERT INTO Coins_category VALUES ('Bitcoin', 'Major')")
 
 cur.execute("INSERT INTO User_login VALUES ( 1,'deom', 'test')")
 cur.execute("INSERT INTO User_info VALUES ( 1, 10000000)")
-
+cur.execute("INSERT INTO User_holding VALUES ( 1, 'KRW-MLK', 2516, 828.73502754)")
+cur.execute("INSERT INTO User_holding VALUES ( 1, 'KRW-CRO', 306, 1269.77360992)")
 
 
 # Save (commit) the changes

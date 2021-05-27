@@ -1,4 +1,9 @@
 {% extends 'base.html' %}
+{% block head %}
+{{super()}}
+      <script src="https://cdn.anychart.com/releases/8.0.1/js/anychart-core.min.js"></script>
+      <script src="https://cdn.anychart.com/releases/8.0.1/js/anychart-pie.min.js"></script>
+{% endblock %}
 {% block content %}
             <button type="button" class="btn btn-labeled btn-primary pull-right">
                <span class="btn-label"><i class="fa fa-dollar"></i>
@@ -239,10 +244,28 @@
                         <div class="panel panel-default">
                            <div class="panel-collapse">
                               <div class="panel-body">
-                                 <h4>BTC-SC</h4>
-                                 <div id="candlestickChart" class="h-500">
+                                 <h4>Your Portfolio</h4>
 
+                                 <div style="display: flex;">
+                                    <div class="panel-body bg-success">
+                              <div class="row row-table row-flush">
+                                 <div class="col-xs-12">
+                                    <h4 class="m0">Available KRW</h4>
+                                    <h4 class="User_krw"><i class="fa fa-krw">&nbsp</i>{{"{:,}".format(budget)}}</h4>
                                  </div>
+                              </div>
+                           </div>
+
+                                 <div class="panel-body bg-primary">
+                                    <div class="row row-table row-flush">
+                                       <div class="col-xs-12">
+                                    <h4 class="m0">Total Asset</h4>
+                                          <h4 class="User_asset" id="User_asset"><i class="fa fa-krw">&nbsp</i></h4>
+                                    </div>
+                                    </div>
+                                 </div>
+                                 </div>
+                                     <div id="piechart" style="width: 100%; height: 500px"></div>
                               </div>
                            </div>
                         </div>
@@ -402,5 +425,65 @@
             });
          });
       });
+   </script>
+   <script>
+anychart.onDocumentReady(function() {
+  var data = [
+      {x: "KRW", value: {{budget}}},
+      {% for coin in holdings %}
+      {x: "{{coin[0]}}", value: {{coin[1]*coin[2]}}},
+      {% endfor %}
+  ];
+
+  // create the chart
+  var chart = anychart.pie();
+
+  // set the chart title
+  //chart.title("Population by Race for the United States: 2010 Census");
+
+  // add the data
+  chart.data(data);
+
+  // display the chart in the container
+  chart.container('piechart');
+  chart.draw();
+});
+   </script>
+   <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"
+      integrity="sha512-q/dWJ3kcmjBLU4Qc47E4A9kTB4m3wuTY7vkFJDTZKjTs8jhyGQnaUrxa0Ytd0ssMZhbNua9hE+E7Qv1j+DyZwA=="
+      crossorigin="anonymous"></script>
+   <script type="text/javascript" charset="utf-8">
+      var socket = io();
+      socket.on('connect', function () {
+         socket.emit('my holdings', data = {{holdings | tojson}});
+         setInterval(function () { socket.emit('my holdings', data = {{holdings | tojson}}); }, 1000);
+      });
+      socket.on('json', function (data) {
+         var totalAsset = parseInt({{budget}});
+         if ((data !== undefined) && (data !== null)) {
+         for (const [key, value] of Object.entries(data)) {
+              {% for coin in holdings %}
+              if(key == "{{coin[0]}}"){
+              totalAsset += parseInt(value[0]*parseFloat({{coin[2]}}));
+              }
+              {% endfor %}
+         }
+         }
+         document.getElementById("User_asset").innerHTML = "<i class ='fa fa-krw'>&nbsp</i>" + totalAsset.toLocaleString();
+      });
+      function priceChange(key, state) {
+         var element = document.getElementById(key).children[2];
+         if (state == "RISE") {
+            element.style = " outline: 1px solid crimson";
+         }
+         else if (state == "FALL") {
+            element.style = " outline: 1px solid darkblue";
+         }
+         setTimeout(clearBorder, 1000, key);
+      }
+      function clearBorder(key) {
+         var element = document.getElementById(key).children[2];
+         element.style = "outline: 0px;";
+      }
    </script>
    {% endblock %}
