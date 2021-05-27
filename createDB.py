@@ -43,6 +43,10 @@ cur.execute('''CREATE TABLE User_holding
 
 
 
+cur.execute('''DROP TABLE IF EXISTS Transaction_history''')
+cur.execute('''CREATE TABLE Transaction_history
+               (uid TEXT, code TEXT, num INTEGER,price REAL, date TEXT, trade_type TEXT, PRIMARY KEY (uid,code), FOREIGN KEY (uid) REFERENCES User_login, FOREIGN KEY (code) REFERENCES Coins)''')
+
 cur.execute('''DROP TABLE IF EXISTS Organization''')
 cur.execute('''CREATE TABLE Organization
                (oid TEXT UNIQUE, oname TEXT, PRIMARY KEY (oid))''')
@@ -55,7 +59,7 @@ cur.execute('''CREATE TABLE Organization_info
 
 cur.execute('''DROP TABLE IF EXISTS Administrated_by''')
 cur.execute('''CREATE TABLE Administrated_by
-               (oid TEXT UNIQUE, code TEXT, PRIMARY KEY (oid,code),FOREIGN KEY (oid) REFERENCES Organization,FOREIGN KEY (code) REFERENCES Coins)''')
+               (oid TEXT UNIQUE, code TEXT, PRIMARY KEY (oid,code),FOREIGN KEY (oid) REFERENCES Organization, FOREIGN KEY (code) REFERENCES Coins)''')
 
 
 

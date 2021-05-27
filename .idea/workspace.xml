@@ -5,6 +5,7 @@
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/createDB.py" beforeDir="false" afterPath="$PROJECT_DIR$/createDB.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/cryptoCurrencies.db" beforeDir="false" afterPath="$PROJECT_DIR$/cryptoCurrencies.db" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -32,7 +33,7 @@
       <recent name="C:\Users\DUKYOUNG\PycharmProjects\CSE305_Final_Project" />
     </key>
   </component>
-  <component name="RunManager" selected="Python.createDB">
+  <component name="RunManager" selected="Python.main">
     <configuration name="createDB" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="CSE305_Final_Project" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -195,7 +196,14 @@
       <option name="project" value="LOCAL" />
       <updated>1622086952864</updated>
     </task>
-    <option name="localTasksCounter" value="16" />
+    <task id="LOCAL-00016" summary="DB tables added">
+      <created>1622087614898</created>
+      <option name="number" value="00016" />
+      <option name="presentableId" value="LOCAL-00016" />
+      <option name="project" value="LOCAL" />
+      <updated>1622087614898</updated>
+    </task>
+    <option name="localTasksCounter" value="17" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">

@@ -91,8 +91,7 @@ def realtime_connect():
     toClient = {}
     for market in response.json():
         #print(market["market"],'\'s Real Time Price: ', market["trade_price"])
-        toClient[market["market"]] = [market["trade_price"],market["high_price"],market["low_price"],market["acc_trade_price"],market["change_rate"], market["change"]]
-    print(toClient)
+        toClient[market["market"]] = [market["trade_price"],market["high_price"],market["low_price"],market["acc_trade_price"],market["prev_closing_price"],market["change_price"],market["change_rate"], market["change"]]
     return toClient
    # handle_json(toClient,sid);
    # print("json request delivered.")
@@ -106,8 +105,6 @@ def test():
     return render_template('test.html')
 
 
-
-
 @app.route('/')
 def index():
     return render_template('base.html')
@@ -119,17 +116,17 @@ def mainPage():
 @app.route('/landing/')
 def landing():
     return render_template('landing.html')
-@app.route('/prices.html')
+@app.route('/prices')
 def prices():
     coinList = query_db('SELECT * FROM Coins')
     print(coinList)
     return render_template('prices.html', list=coinList)
 
-@app.route('/chart.html')
+@app.route('/chart')
 def chart():
     return render_template('chart.html')
 
-@app.route('/profile.html')
+@app.route('/profile')
 def profile():
     return render_template('profile.html')
 
