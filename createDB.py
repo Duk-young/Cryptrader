@@ -26,7 +26,7 @@ cur.execute('''CREATE TABLE User_login
                (uid TEXT UNIQUE, password TEXT NOT NULL, PRIMARY KEY (uid))''')
 
 cur.execute('''DROP TABLE IF EXISTS User_info''')
-cur.execute('''CREATE TABLE User_login
+cur.execute('''CREATE TABLE User_info
                (uid TEXT UNIQUE, uname TEXT NOT NULL, budget INTEGER, PRIMARY KEY (uid), FOREIGN KEY (uid) REFERENCES User_login)''')
 
 cur.execute('''DROP TABLE IF EXISTS User_interests''')
