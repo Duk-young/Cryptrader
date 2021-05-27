@@ -2,7 +2,7 @@
 import sqlite3
 import threading
 
-from flask import Flask, request, url_for, render_template, flash
+from flask import Flask, request, url_for, render_template, session, redirect, flash
 from flask import g
 import jwt   # PyJWT
 import uuid
@@ -19,13 +19,13 @@ DATABASE = 'cryptoCurrencies.db'
 # UpbitPy init
 krw_markets = []
 
-
 # def print_tickers(items):
 #     for it in items:
 #         logging.info('{}: {} won'.format(it['market'], it['trade_price']))
 
 app = Flask(__name__)
 app.config.from_object(__name__)
+app.secret_key = 'cse305finalproejct'
 socketio = SocketIO(app)
 #UPBIT ACCESS
 #Access Key : dqZ29pX3nfA8KyxmiYyRt9UwzBOW4a8TwRs34Er7
@@ -99,24 +99,54 @@ def realtime_connect():
    # thread.start_new_thread(realtime_connect, (sid,))
 
 # Invoke this one with http://127.0.0.1:5000
-
+@app.before_request
+def check_session():
+    if 'user_info' in session:
+        user = session['user_info']
+        g.user = user
+    else:
+        g.user = None
 @app.route('/test/')
 def test():
     return render_template('test.html')
 
 
-@app.route('/')
-def index():
-    return render_template('base.html')
-
 # Flask SocketIO handler
-@app.route('/main/')
+@app.route('/',methods=['GET','POST'])
 def mainPage():
-    return render_template('login.html')
+    if request.method == 'POST':
+        session.pop('user_info', None)
+        if "new_uname" in request.form:
+            uname = request.form['new_uname']
+            password = request.form['password']
+            password_repeat = request.form['password_repeat']
+            if password==password_repeat :
+                user_check = query_db('SELECT uid, uname FROM User_login WHERE uname = ? AND password = ?', [uname, password])
+                if len(user_check) == 0:
+                    uid = query_db('SELECT COUNT(*) FROM User_login')[0][0] + 1
+                    conn = get_db()
+                    cur = conn.cursor()
+                    cur.execute('INSERT INTO User_login (uid, uname, password) VALUES (?, ?, ?)', [uid, uname, password])
+                    cur.execute('INSERT INTO User_info (uid, budget) VALUES (?, ?)', [uid, 10000000])
+                    conn.commit()
+                    cur.close()
+                else:
+                    flash("Username already exists. Please try with other user name", 'register')
+            else:
+                flash("Passwords do not match", 'register')
+        else:
+            uname = request.form['uname']
+            password = request.form['password']
+            user = query_db('SELECT uid, uname FROM User_login WHERE uname = ? AND password = ?', [uname, password])
+            if len(user) != 0:
+                session['user_info'] = user
+                return redirect(url_for('prices'))
+            flash("Invalid username or password", 'sign_in')
+    return render_template('landing.html')
 @app.route('/landing/')
 def landing():
     return render_template('landing.html')
-@app.route('/prices')
+@app.route('/prices', methods=['POST','GET'])
 def prices():
     coinList = query_db('SELECT * FROM Coins')
     print(coinList)
@@ -131,8 +161,14 @@ def chart():
 
 @app.route('/profile')
 def profile():
+    if g.user is None:
+        return redirect(url_for('/'))
     return render_template('profile.html')
-
+@app.route('/signout')
+def signout():
+    session.pop('user_info', None)
+    g.user = None
+    return redirect('/')
 
 @socketio.on('my event')
 def handle_my_custom_event(sid):
@@ -158,11 +194,14 @@ class ThreadCount(object):
         return len(self)
     def join(self):
         self[0].join()
-"""
-@socketio.on('realtime')
-def realtime_data(json, methods=['GET', 'POST']):
-    socketio.send('realtime', json)
-"""
+
+
+class User:
+    def __init__(self, uid, uname, password):
+        self.id = uid
+        self.uname = uname
+        self.password = password
+
 # Now, run the app as a server in debug mode or public mode
 if __name__ == '__main__':
     upbit = Upbitpy()

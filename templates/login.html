@@ -12,29 +12,29 @@
 
 
         <!-- Bootstrap CSS -->
-        <link rel="stylesheet" href="app/css/bootstrap.css">
+        <link rel="stylesheet" href="{{url_for('static', filename='app/css/bootstrap.css')}}">
 
         <!-- Icon CSS -->
-        <link href="css/themify-icons.css" rel="stylesheet">
+        <link href="{{url_for('static', filename='css/themify-icons.css')}}" rel="stylesheet">
 
         <!-- FontAwesome -->
-        <link rel="stylesheet" href="plugins/fontawesome/css/font-awesome.css">
+        <link rel="stylesheet" href="{{url_for('static', filename='plugins/fontawesome/css/font-awesome.css')}}">
 
         <!-- Owl Carousel CSS -->
-        <link href="css/owl.carousel.css" rel="stylesheet">
-        <link href="css/owl.theme.default.min.css" rel="stylesheet">
+        <link href="{{url_for('static', filename='css/owl.carousel.css')}}" rel="stylesheet">
+        <link href="{{url_for('static', filename='css/owl.theme.default.min.css')}}" rel="stylesheet">
 
         <!-- Magnific-popup -->
-        <link rel="stylesheet" href="css/magnific-popup.css">
+        <link rel="stylesheet" href="{{url_for('static', filename='css/magnific-popup.css')}}">
 
         <!-- Custom styles for this template -->
-        <link rel="stylesheet" href="app/css/app.css">
+        <link rel="stylesheet" href="{{url_for('static', filename='app/css/app.css')}}">
 
 
         <!-- HTML5 shim and Respond.js IE8 support of HTML5 tooltipss and media queries -->
         <!--[if lt IE 9]>
-          <script src="js/html5shiv.js"></script>
-          <script src="js/respond.min.js"></script>
+          <script src="{{url_for('static', filename='js/html5shiv.js')}}"></script>
+          <script src="{{url_for('static', filename='js/respond.min.js')}}"></script>
         <![endif]-->
         
     </head>
@@ -124,10 +124,10 @@
 
                                       <div class="tab-pane active" id="tab_default_2">
                                         <div class="panel panel-body">
-                                            <form class="intro-form" action="#" id="invite-2" method="POST">
+                                            <form class="intro-form" action="/main" id="invite-2" method="POST">
                                                <h5><i class="fa fa-key"></i> Sign in<span>Have an account? Sign in & start trading</span></h5>
-                                               <input name="fname" id="fname-2" class="fname" placeholder="Full Name" type="text" required="required">
-                                               <input type="email" placeholder="Email Address" name="email" required="required">
+                                               <input name="id" id="fname-2" class="fname" placeholder="ID" type="text" required="required">
+                                               <input type="text" placeholder="password" name="password" required="required">
                                                <button type="submit" class="btn btn-secondary btn-block">Sign In</button>
 
                                                <p>By Clicking Get Trial you agree to our terms of conditions of this product</p>
@@ -216,25 +216,25 @@
 
 
         <!-- js placed at the end of the document so the pages load faster -->
-        <script src="plugins/jquery/jquery.js"></script>
-        <script src="plugins/bootstrap/js/bootstrap.js"></script>
+        <script src="{{url_for('static', filename='plugins/jquery/jquery.js')}}"></script>
+        <script src="{{url_for('static', filename='plugins/bootstrap/js/bootstrap.js')}}"></script>
 
         <!-- Sticky Header -->
-        <script src="js/jquery.sticky.js"></script>
+        <script src="{{url_for('static', filename='js/jquery.sticky.js')}}"></script>
 
         <!-- Jquery easing -->                                                      
-        <script type="text/javascript" src="js/jquery.easing.1.4.1.js"></script>
+        <script type="text/javascript" src="{{url_for('static', filename='js/jquery.easing.1.4.1.js')}}"></script>
 
         <!-- Owl Carousel -->                                                      
-        <script type="text/javascript" src="js/owl.carousel.min.js"></script>
+        <script type="text/javascript" src="{{url_for('static', filename='js/owl.carousel.min.js')}}"></script>
 
 
         <!-- Magnific Popup -->
-        <script type="text/javascript" src="js/jquery.magnific-popup.js"></script>
+        <script type="text/javascript" src="{{url_for('static', filename='js/jquery.magnific-popup.js')}}"></script>
 
         <!-- Custom js -->
-        <script src="js/landing.js"></script>
-        <script src="app/js/app.js"></script>
+        <script src="{{url_for('static', filename='js/landing.js')}}"></script>
+        <script src="{{url_for('static', filename='app/js/app.js')}}"></script>
 
     </body>
 </html>

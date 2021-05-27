@@ -1,14 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="4f9d74bc-890c-46aa-8db3-414ce95b31c8" name="Default Changelist" comment="Please Pull before push">
+    <list default="true" id="4f9d74bc-890c-46aa-8db3-414ce95b31c8" name="Default Changelist" comment="base template added">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/createDB.py" beforeDir="false" afterPath="$PROJECT_DIR$/createDB.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cryptoCurrencies.db" beforeDir="false" afterPath="$PROJECT_DIR$/cryptoCurrencies.db" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/templates/base.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/base.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/templates/chart.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/chart.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/templates/prices.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/prices.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/templates/profile.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/profile.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/landing.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/landing.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/login.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/login.html" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -213,7 +214,14 @@
       <option name="project" value="LOCAL" />
       <updated>1622111100762</updated>
     </task>
-    <option name="localTasksCounter" value="18" />
+    <task id="LOCAL-00018" summary="base template added">
+      <created>1622115428283</created>
+      <option name="number" value="00018" />
+      <option name="presentableId" value="LOCAL-00018" />
+      <option name="project" value="LOCAL" />
+      <updated>1622115428283</updated>
+    </task>
+    <option name="localTasksCounter" value="19" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -243,6 +251,7 @@
     <MESSAGE value="opening price, changed price columns added" />
     <MESSAGE value="DB tables added" />
     <MESSAGE value="Please Pull before push" />
-    <option name="LAST_COMMIT_MESSAGE" value="Please Pull before push" />
+    <MESSAGE value="base template added" />
+    <option name="LAST_COMMIT_MESSAGE" value="base template added" />
   </component>
 </project>

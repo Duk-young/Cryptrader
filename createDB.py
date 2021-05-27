@@ -193,6 +193,10 @@ cur.execute("INSERT INTO Coins VALUES ('Icon','KRW-ICX')")
 
 cur.execute("INSERT INTO Coins_category VALUES ('Bitcoin', 'Major')")
 
+cur.execute("INSERT INTO User_login VALUES ( 1,'deom', 'test')")
+cur.execute("INSERT INTO User_info VALUES ( 1, 10000000)")
+
+
 
 # Save (commit) the changes
 conn.commit()
