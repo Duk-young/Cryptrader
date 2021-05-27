@@ -21,47 +21,37 @@ cur.execute('''DROP TABLE IF EXISTS Coins_info''')
 cur.execute('''CREATE TABLE Coins_info
                (name TEXT UNIQUE, market_cap REAL, global INTEGER, founder TEXT, PRIMARY KEY (name), FOREIGN KEY (name) REFERENCES Coins)''')
 
-
-
 cur.execute('''DROP TABLE IF EXISTS User_login''')
 cur.execute('''CREATE TABLE User_login
-               (uid TEXT UNIQUE, password TEXT NOT NULL, PRIMARY KEY (uid))''')
+               (uid INTEGER UNIQUE, uname TEXT NOT NULL, password TEXT NOT NULL, PRIMARY KEY (uid))''')
 
 cur.execute('''DROP TABLE IF EXISTS User_info''')
 cur.execute('''CREATE TABLE User_info
-               (uid TEXT UNIQUE, uname TEXT NOT NULL, budget INTEGER, PRIMARY KEY (uid), FOREIGN KEY (uid) REFERENCES User_login)''')
+               (uid INTEGER UNIQUE, budget INTEGER, PRIMARY KEY (uid), FOREIGN KEY (uid) REFERENCES User_login)''')
 
 cur.execute('''DROP TABLE IF EXISTS User_interests''')
 cur.execute('''CREATE TABLE User_interests
-               (uid TEXT UNIQUE, code TEXT, PRIMARY KEY (uid), FOREIGN KEY (uid) REFERENCES User_login)''')
-
-
+               (uid INTEGER, code TEXT, PRIMARY KEY (uid), FOREIGN KEY (uid) REFERENCES User_login)''')
 
 cur.execute('''DROP TABLE IF EXISTS User_holding''')
 cur.execute('''CREATE TABLE User_holding
-               (uid TEXT UNIQUE, code TEXT, num INTEGER, avg_price REAL, PRIMARY KEY (uid,code), FOREIGN KEY (code) REFERENCES Coins)''')
-
-
+               (uid INTEGER, code TEXT, num INTEGER, avg_price REAL, PRIMARY KEY (uid,code), FOREIGN KEY (code) REFERENCES Coins)''')
 
 cur.execute('''DROP TABLE IF EXISTS Transaction_history''')
 cur.execute('''CREATE TABLE Transaction_history
-               (uid TEXT, code TEXT, num INTEGER,price REAL, date TEXT, trade_type TEXT, PRIMARY KEY (uid,code), FOREIGN KEY (uid) REFERENCES User_login, FOREIGN KEY (code) REFERENCES Coins)''')
+               (uid INTEGER, code TEXT, num INTEGER,price REAL, date TEXT, trade_type TEXT, status INTEGER, PRIMARY KEY (uid,code), FOREIGN KEY (uid) REFERENCES User_login, FOREIGN KEY (code) REFERENCES Coins)''')
 
 cur.execute('''DROP TABLE IF EXISTS Organization''')
 cur.execute('''CREATE TABLE Organization
                (oid TEXT UNIQUE, oname TEXT, PRIMARY KEY (oid))''')
 
 cur.execute('''DROP TABLE IF EXISTS Organization_info''')
-cur.execute('''CREATE TABLE Organization_info
+cur.execute('''CREATE TABLE Organization_info   
                (oname TEXT UNIQUE, owner TEXT, located_in TEXT, PRIMARY KEY (oname), FOREIGN KEY (oname) REFERENCES Organization)''')
-
-
 
 cur.execute('''DROP TABLE IF EXISTS Administrated_by''')
 cur.execute('''CREATE TABLE Administrated_by
                (oid TEXT UNIQUE, code TEXT, PRIMARY KEY (oid,code),FOREIGN KEY (oid) REFERENCES Organization, FOREIGN KEY (code) REFERENCES Coins)''')
-
-
 
 cur.execute('''DROP TABLE IF EXISTS Company''')
 cur.execute('''CREATE TABLE Company
@@ -70,8 +60,6 @@ cur.execute('''CREATE TABLE Company
 cur.execute('''DROP TABLE IF EXISTS Company_info''')
 cur.execute('''CREATE TABLE Company_info
                (cname TEXT UNIQUE, owner TEXT, located_in TEXT, PRIMARY KEY (cname), FOREIGN KEY (cname) REFERENCES Organization)''')
-
-
 
 cur.execute('''DROP TABLE IF EXISTS Collaborates_with''')
 cur.execute('''CREATE TABLE Collaborates_with

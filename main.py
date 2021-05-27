@@ -121,6 +121,9 @@ def prices():
     coinList = query_db('SELECT * FROM Coins')
     print(coinList)
     return render_template('prices.html', list=coinList)
+@app.route('/prices/<code>')
+def coinSpec(code):
+    return render_template('chart.html', code=code)
 
 @app.route('/chart')
 def chart():
