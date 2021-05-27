@@ -11,7 +11,7 @@ cur = conn.cursor()
 # Create tables
 cur.execute('''DROP TABLE IF EXISTS Coins''')
 cur.execute('''CREATE TABLE Coins
-               (name Text UNIQUE, code Text UNIQUE, PRIMARY KEY (code))''')
+               (name Text UNIQUE, code Text UNIQUE, highest Integer, lowest Integer, founder Text, PRIMARY KEY (code))''')
 
 
 # Insert rows of data

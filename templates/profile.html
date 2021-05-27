@@ -1,0 +1,592 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+   {% block head %}
+   <meta charset="utf-8">
+   <meta http-equiv="X-UA-Compatible" content="IE=edge">
+   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0">
+   <meta content="Responsive Bootstrap Multi-Purpose Crypto Trading User Interface" name="description" />
+   <meta name="keywords"
+      content="crypto, Bootstrap, bitcoins, ethereum, dogecoin, iota, ripple, siacoin, exchange, trading platform, crypto trading">
+   <meta name="author" content="">
+   <title>Tradify - Responsive Crypto/Stock Trading User Interface</title>
+   <link rel="stylesheet" href="{{ url_for('static', filename='app/css/bootstrap.css') }}">
+   <link rel="stylesheet" href="{{ url_for('static', filename='plugins/fontawesome/css/font-awesome.css') }}">
+   <link rel="stylesheet" href="{{ url_for('static', filename='plugins/animo/animate%2banimo.css') }}">
+   <link rel="stylesheet" href="{{ url_for('static', filename='plugins/csspinner/csspinner.min.css') }}">
+   <link rel="stylesheet" href="{{ url_for('static', filename='app/css/app.css') }}">
+   <script src="{{ url_for('static', filename='plugins/modernizr/modernizr.js') }}"></script>
+   <script src="{{ url_for('static', filename='plugins/fastclick/fastclick.js') }}"></script>
+   {% endblock %}
+</head>
+
+<body>
+
+   {% block body %}
+   <div id="overlayLoader">
+      <div id="preloader">
+         <span></span>
+         <span></span>
+      </div>
+   </div>
+
+
+   <section class="wrapper">
+      <nav class="navbar navbar-default navbar-top navbar-fixed-top">
+         <div class="navbar-header">
+            <a href="#" class="navbar-brand">
+               <div class="brand-logo"><i class="fa fa-bitcoin"></i> TRADIFY</div>
+               <div class="brand-logo-collapsed"><i class="fa fa-bitcoin"></i></div>
+            </a>
+         </div>
+         <div class="nav-wrapper">
+            <ul class="nav navbar-nav mt0">
+               <li>
+                  <a href="#" data-toggle="aside">
+                     <em class="fa fa-align-left"></em>
+                  </a>
+               </li>
+            </ul>
+            <ul class="nav navbar-nav navbar-right mt0">
+               <li class="dropdown dropdown-list">
+                  <a href="#" data-toggle="dropdown" data-play="fadeIn" class="dropdown-toggle">
+                     <strong><i class="fa fa-btc"></i> Wallet</strong>
+                  </a>
+               </li>
+               <li class="dropdown dropdown-list">
+                  <a href="#" data-toggle="dropdown" data-play="fadeIn" class="dropdown-toggle">
+                     <em class="fa fa-bell"></em>
+                     <div class="label label-danger">3</div>
+                  </a>
+                  <ul class="dropdown-menu col-md-4 col-sm-6 col-xs-12">
+                     <li>
+                        <div class="table-responsive">
+                           <table class="table table-striped table-bordered table-hover">
+                              <thead>
+                                 <tr>
+                                    <th>Buy/Sell</th>
+                                    <th>Progress</th>
+                                    <th>Date</th>
+                                    <th>Status</th>
+                                 </tr>
+                              </thead>
+                              <tbody>
+                                 <tr>
+                                    <td>Buy order SC</td>
+                                    <td>
+                                       <div class="progress progress-striped progress-xs">
+                                          <div role="progressbar" aria-valuenow="100" aria-valuemin="0"
+                                             aria-valuemax="100" class="progress-bar progress-bar-success w-100-p">
+                                             <span class="sr-only">100% Complete</span>
+                                          </div>
+                                       </div>
+                                    </td>
+                                    <td>
+                                       <em class="fa fa-calendar fa-fw text-muted"></em>02/19/2018
+                                    </td>
+                                    <td class="text-center">
+                                       Complete
+                                    </td>
+                                 </tr>
+                                 <tr>
+                                    <td>Sell order SC</td>
+                                    <td>
+                                       <div class="progress progress-striped progress-xs">
+                                          <div role="progressbar" aria-valuenow="50" aria-valuemin="0"
+                                             aria-valuemax="100" class="progress-bar progress-bar-danger w-50-p">
+                                             <span class="sr-only">50% Complete</span>
+                                          </div>
+                                       </div>
+                                    </td>
+                                    <td>
+                                       <em class="fa fa-calendar fa-fw text-muted"></em>02/18/2018
+                                    </td>
+                                    <td class="text-center">
+                                       50% Filled
+                                    </td>
+                                 </tr>
+                                 <tr>
+                                    <td>Buy order IOTA</td>
+                                    <td>
+                                       <div class="progress progress-striped progress-xs">
+                                          <div role="progressbar" aria-valuenow="50" aria-valuemin="0"
+                                             aria-valuemax="100" class="progress-bar progress-bar-success w-50-p">
+                                             <span class="sr-only">50% Complete</span>
+                                          </div>
+                                       </div>
+                                    </td>
+                                    <td>
+                                       <em class="fa fa-calendar fa-fw text-muted"></em>02/17/2018
+                                    </td>
+                                    <td class="text-center">
+                                       50% Filled
+                                    </td>
+                                 </tr>
+                              </tbody>
+                           </table>
+                        </div>
+                     </li>
+                  </ul>
+               </li>
+               <li class="dropdown">
+                  <a href="#" data-toggle="dropdown" data-play="fadeIn" class="dropdown-toggle">
+                     <em class="fa fa-user"></em>
+                  </a>
+                  <ul class="dropdown-menu">
+                     <li><a href="#">Profile</a>
+                     </li>
+                     <li><a href="#">Settings</a>
+                     </li>
+                     <li class="divider"></li>
+                     <li><a href="#">Logout</a>
+                     </li>
+                  </ul>
+               </li>
+            </ul>
+         </div>
+      </nav>
+      <aside class="aside">
+         <nav class="sidebar">
+            <ul class="nav">
+               <li>
+                  <div data-toggle="collapse-next" class="item user-block has-submenu">
+                     <div class="user-block-picture">
+                        <img src="app/img/user/02.jpg" alt="Avatar" width="60" height="60"
+                           class="img-thumbnail img-circle account-img-mb">
+                     </div>
+                     <div class="user-block-info">
+                        <span class="user-block-name item-text">James Franky</span>
+                        <span class="user-block-role"><i class="fa fa-check text-green"></i> Verified</span>
+                        <div class="label label-primary"><i class="fa fa-chevron-down"></i> Account Info</div>
+                     </div>
+                  </div>
+                  <!-- <ul class="nav collapse">
+                     <li><a href="javascript:void(0);">Open Orders</a>
+                     </li>
+                     <li><a href="javascript:void(0);">Transactions History</a>
+                     </li>
+                     <li>
+                        <a href="javascript:void(0);">
+                           Verification
+                           <div class="label label-success pull-right"><i class="fa fa-check"></i> Verified</div>
+                        </a>
+                     </li>
+                     <li>
+                        <a href="javascript:void(0);">
+                           2FA
+                           <div class="pull-right label label-danger"><i class="fa fa-unlock"></i> Not Enabled</div>
+                        </a>
+                     </li>
+                     <li><a href="javascript:void(0);">Bonus Code</a>
+                     </li>
+                     <li><a href="javascript:void(0);">Activity Log</a>
+                     </li>
+                     <li><a href="javascript:void(0);">API</a>
+                     </li>
+                     <li class="divider"></li>
+                     <li><a href="javascript:void(0);">Logout</a>
+                     </li>
+                  </ul> -->
+               </li>
+               <li class="active">
+                  <a href="index-2.html" title="Markets" data-toggle="collapse-next" class="has-submenu">
+                     <em class="fa fa-home"></em>
+                     <div class="label pull-right"><i class="fa fa-line-chart"></i></div>
+                     <span class="item-text">Markets</span>
+                  </a>
+                  <ul class="nav collapse in">
+                     <li class="active">
+                        <a href="index.html" title="Default" data-toggle="" class="no-submenu">
+                           <span class="item-text">Layout One</span>
+                        </a>
+                     </li>
+                  </ul>
+               </li>
+               <li>
+                  <a href="prices.html" title="Dashboard" class="">
+                     <em class="fa fa-btc"></em>
+                     <span class="item-text">Live Pricing</span>
+                  </a>
+               </li>
+               <li class="">
+                  <a href="datatable.html" title="Dashboard" class="">
+                     <em class="fa fa-gear"></em>
+                     <span class="item-text">Shortcodes</span>
+                  </a>
+               </li>
+               <li>
+                  <a href="#" title="Pages" data-toggle="collapse-next" class="has-submenu">
+                     <em class="fa fa-file-text"></em>
+                     <span class="item-text">Pages</span>
+                  </a>
+                  <ul class="nav collapse ">
+                     <li>
+                        <a href="login.html" title="Login" data-toggle="" class="no-submenu">
+                           <span class="item-text">Login</span>
+                        </a>
+                     </li>
+                     <li>
+                        <a href="signup.html" title="Sign up" data-toggle="" class="no-submenu">
+                           <span class="item-text">Sign up</span>
+                        </a>
+                     </li>
+                     <li>
+                        <a href="lock.html" title="Lock" data-toggle="" class="no-submenu">
+                           <span class="item-text">Lock</span>
+                        </a>
+                     </li>
+                     <li>
+                        <a href="recover.html" title="Recover Password" data-toggle="" class="no-submenu">
+                           <span class="item-text">Recover Password</span>
+                        </a>
+                     </li>
+                  </ul>
+               </li>
+            </ul>
+         </nav>
+      </aside>
+      <section>
+         <section class="main-content">
+            <button type="button" class="btn btn-labeled btn-primary pull-right">
+               <span class="btn-label"><i class="fa fa-dollar"></i>
+               </span>Goto Wallet</button>
+            <h3>Dashboard
+            </h3>
+            <div class="row">
+               <div class="col-md-9">
+                  <!-- First Row Starts Here -->
+                 
+                  <!-- First Row Ends Here -->
+                  <div class="row">
+                     <div class="col-lg-12">
+                        <div class="panel panel-default">
+                           <div class="panel-heading">All Markets
+                              <a href="javascript:void(0);" data-perform="panel-dismiss" data-toggle="tooltip" title=""
+                                 class="pull-right" data-original-title="Close Panel">
+                                 <em class="fa fa-times"></em>
+                              </a>
+                              <a href="javascript:void(0);" data-perform="panel-collapse" data-toggle="tooltip" title=""
+                                 class="pull-right" data-original-title="Collapse Panel">
+                                 <em class="fa fa-plus"></em>
+                              </a>
+                           </div>
+                           <div class="panel-wrapper collapse">
+                              <div class="panel panel-default">
+                                 <div class="panel-heading">All Markets |
+                                    <small>All Availble Markets</small>
+                                 </div>
+                                 <div class="panel-body">
+                                    <table id="datatable1" class="table table-striped table-hover">
+                                       <thead>
+                                          <tr>
+                                             <th class="tableSmallPad">Coin</th>
+                                             <th class="tableSmallPad">Price</th>
+                                             <th class="tableSmallPad">Vol</th>
+                                             <th class="tableSmallPad">CHG</th>
+                                             <th class="tableSmallPad">Name</th>
+                                          </tr>
+                                       </thead>
+                                       <tbody>
+                                          <!-- BCH Starts Here -->
+                                          <tr class="clickable-row" data-href="index.html">
+                                             <td class="tableSmallPad">
+                                                <!--RADIO 1-->
+                                                <input type="radio" class="radio_item" value="" name="BCH" id="radio1">
+                                                <label class="label_item" for="radio1"> <i
+                                                      class="fa fa-star text-c-blue"></i> </label> BCH
+                                             </td>
+                                             <td class="tableSmallPad">0.16000009</td>
+                                             <td class="tableSmallPad">2967.720</td>
+                                             <td class="text-c-blue tableSmallPad">+17.84</td>
+                                             <td class="tableSmallPad">Bitcoin Cash</td>
+                                          </tr>
+                                          <!-- BCH Ends Here -->
+                                          <!-- ETH Starts Here -->
+                                          <tr class="clickable-row" data-href="index.html">
+                                             <td class="tableSmallPad"><input type="radio" class="radio_item" value=""
+                                                   name="ETH" id="radio10">
+                                                <label class="label_item" for="radio10"> <i
+                                                      class="fa fa-star text-c-blue"></i> </label> ETH
+                                             </td>
+                                             <td class="tableSmallPad">0.10039995</td>
+                                             <td class="tableSmallPad">2887.720</td>
+                                             <td class="text-c-blue tableSmallPad">+1.35</td>
+                                             <td class="tableSmallPad">Ethereum</td>
+                                          </tr>
+                                          <!-- ETH Ends Here -->
+                                          <!-- XRP Starts Here -->
+                                          <tr class="clickable-row" data-href="index.html">
+                                             <td class="tableSmallPad"><input type="radio" class="radio_item" value=""
+                                                   name="ETH" id="radio3">
+                                                <label class="label_item" for="radio3"> <i
+                                                      class="fa fa-star text-c-blue"></i> </label> XRP
+                                             </td>
+                                             <td class="tableSmallPad">0.00009485</td>
+                                             <td class="tableSmallPad">1633.576</td>
+                                             <td class="text-c-blue tableSmallPad">+5.10</td>
+                                             <td class="tableSmallPad">Ripple</td>
+                                          </tr>
+                                          <!-- XRP Ends Here -->
+                                          <!-- STR Starts Here -->
+                                          <tr class="clickable-row" data-href="index.html">
+                                             <td class="tableSmallPad"><input type="radio" class="radio_item" value=""
+                                                   name="ETH" id="radio4">
+                                                <label class="label_item" for="radio4"> <i
+                                                      class="fa fa-star text-c-blue"></i> </label> STR
+                                             </td>
+                                             <td class="tableSmallPad">0.00004322</td>
+                                             <td class="tableSmallPad">1196.608</td>
+                                             <td class="text-c-red tableSmallPad">-0.05</td>
+                                             <td class="tableSmallPad">Stellar</td>
+                                          </tr>
+                                          <!-- STR Ends Here -->
+                                          <!-- LTC Starts Here -->
+                                          <tr class="clickable-row" data-href="index.html">
+                                             <td class="tableSmallPad"><input type="radio" class="radio_item" value=""
+                                                   name="ETH" id="radio5">
+                                                <label class="label_item" for="radio5"> <i
+                                                      class="fa fa-star text-c-blue"></i> </label> LTC
+                                             </td>
+                                             <td class="tableSmallPad">0.01790003</td>
+                                             <td class="tableSmallPad">1115.235</td>
+                                             <td class="text-c-blue tableSmallPad">+1.58</td>
+                                             <td class="tableSmallPad">Litecoin</td>
+                                          </tr>
+                                          <!-- LTC Ends Here -->
+                                          <!-- SC Starts Here -->
+                                          <tr class="clickable-row" data-href="index.html">
+                                             <td class="tableSmallPad"><input type="radio" class="radio_item" value=""
+                                                   name="ETH" id="radio6">
+                                                <label class="label_item" for="radio6"> <i
+                                                      class="fa fa-star text-c-blue"></i> </label> SC
+                                             </td>
+                                             <td class="tableSmallPad">0.00000272</td>
+                                             <td class="tableSmallPad">131.014</td>
+                                             <td class="text-c-blue tableSmallPad">+1.87</td>
+                                             <td class="tableSmallPad">Siacoin</td>
+                                          </tr>
+                                          <!-- SC Ends Here -->
+                                          <!-- Doge Starts Here -->
+                                          <tr class="clickable-row" data-href="index.html">
+                                             <td class="tableSmallPad"><input type="radio" class="radio_item" value=""
+                                                   name="ETH" id="radio7">
+                                                <label class="label_item" for="radio7"> <i
+                                                      class="fa fa-star text-c-blue"></i> </label> DOGE
+                                             </td>
+                                             <td class="tableSmallPad">0.00000055</td>
+                                             <td class="tableSmallPad">169.631</td>
+                                             <td class="text-c-red tableSmallPad">-1.79</td>
+                                             <td class="tableSmallPad">Dogecoin</td>
+                                          </tr>
+                                          <!-- Doge Ends Here -->
+                                          <!-- DBG Starts Here -->
+                                          <tr class="clickable-row" data-href="index.html">
+                                             <td class="tableSmallPad"><input type="radio" class="radio_item" value=""
+                                                   name="ETH" id="radio8">
+                                                <label class="label_item" for="radio8"> <i
+                                                      class="fa fa-star text-c-blue"></i> </label> DGB
+                                             </td>
+                                             <td class="tableSmallPad">0.00000402</td>
+                                             <td class="tableSmallPad">90.224</td>
+                                             <td class="text-c-blue tableSmallPad">+0.00</td>
+                                             <td class="tableSmallPad">DigiByte</td>
+                                          </tr>
+                                          <!-- DGB Ends Here -->
+                                          <!-- NXT Starts Here -->
+                                          <tr class="clickable-row" data-href="index.html">
+                                             <td class="tableSmallPad"><input type="radio" class="radio_item" value=""
+                                                   name="ETH" id="radio9">
+                                                <label class="label_item" for="radio9"> <i
+                                                      class="fa fa-star text-c-blue"></i> </label> NXT
+                                             </td>
+                                             <td class="tableSmallPad">0.00002241</td>
+                                             <td class="tableSmallPad">100.305</td>
+                                             <td class="text-c-blue tableSmallPad">+2.56</td>
+                                             <td class="tableSmallPad">NXT</td>
+                                          </tr>
+                                          <!-- NXT Ends Here -->
+                                       </tbody>
+                                    </table>
+                                 </div>
+                              </div>
+                              <div class="panel-footer">All Markets</div>
+                           </div>
+                        </div>
+                     </div>
+                  </div>
+                  <!-- Chart Starts Here -->
+                  <div class="row">
+                     <div class="col-lg-12">
+                        <div class="panel panel-default">
+                           <div class="panel-collapse">
+                              <div class="panel-body">
+                                 <h4>BTC-SC</h4>
+                                 <div id="candlestickChart" class="h-500">
+
+                                 </div>
+                              </div>
+                           </div>
+                        </div>
+                     </div>
+                  </div>
+                  <!-- Chart Ends Here -->
+              
+                  <!-- Coin Status Ends Here -->
+               
+            <!-- Orders Book -->
+               <!-- Open Orders -->
+               <div class="col-md-12">
+                  <div class="panel panel-default">
+                     <div class="panel-heading">Open Orders
+                        <a href="#" data-perform="panel-collapse" data-toggle="tooltip" title="Collapse Panel"
+                           class="pull-right">
+                           <em class="fa fa-minus"></em>
+                        </a>
+                     </div>
+                     <div class="table-responsive">
+                        <table class="table table-bordered table-hover">
+                           <thead>
+                              <tr>
+                                 <th><i class="fa fa-plus"></i></th>
+                                 <th>Order Date</th>
+                                 <th>Type</th>
+                                 <th>Bid/Ask</th>
+                                 <th>Units Filled SC</th>
+                                 <th>Units Total SC</th>
+                                 <th>Actual Rate</th>
+                                 <th>Estimated Total BTC</th>
+                                 <th><i class="fa fa-times"></i></th>
+                              </tr>
+                           </thead>
+                           <tbody>
+                              <tr>
+                                 <td><i class="fa fa-minus"></i></td>
+                                 <td>
+                                    02/18/2018 05:36:12 PM
+                                 </td>
+                                 <td>Limit Sell</td>
+                                 <td>0.00000305</td>
+                                 <td>0.00000000</td>
+                                 <td>26089.00161498</td>
+                                 <td>
+                                    0.00000000
+                                 </td>
+                                 <td>0.07937253</td>
+                                 <td>
+                                    <i class="fa fa-times btn btn-danger"></i>
+                                 </td>
+                              </tr>
+                              <tr>
+                                 <td><i class="fa fa-minus"></i></td>
+                                 <td>
+                                    02/18/2018 05:30:12 PM
+                                 </td>
+                                 <td>Limit Buy</td>
+                                 <td>0.00000300</td>
+                                 <td>0.00000000</td>
+                                 <td>27000.00161498</td>
+                                 <td>
+                                    0.00000000
+                                 </td>
+                                 <td>0.07937253</td>
+                                 <td>
+                                    <i class="fa fa-times btn btn-danger"></i>
+                                 </td>
+                              </tr>
+                           </tbody>
+                        </table>
+                     </div>
+                     <div class="panel-footer">
+                        <div class="row">
+                           <div class="col-lg-2">
+                              <div class="input-group">
+                                 <input type="text" placeholder="Search" class="input-sm form-control">
+                                 <span class="input-group-btn">
+                                    <button type="button" class="btn btn-sm btn-default">Search</button>
+                                 </span>
+                              </div>
+                           </div>
+                           <div class="col-lg-8"></div>
+                           <div class="col-lg-2">
+                              <div class="input-group pull-right">
+                                 <select class="input-sm form-control">
+                                    <option value="0">Bulk action</option>
+                                    <option value="1">Cancel All</option>
+                                 </select>
+                                 <span class="input-group-btn">
+                                    <button class="btn btn-sm btn-default">Apply</button>
+                                 </span>
+                              </div>
+                           </div>
+                        </div>
+                     </div>
+                  </div>
+               </div>
+               <!-- Market History -->
+               <!-- My Order History -->
+          
+            </div>
+         </section>
+      </section>
+   </section>
+
+   <script src="{{ url_for('static', filename='plugins/jquery/jquery.js') }}"></script>
+   <script src="{{ url_for('static', filename='plugins/velocity/velocity.js') }}"></script>
+   <script src="{{ url_for('static', filename='plugins/velocity/velocity.ui.js') }}"></script>
+   <script src="{{ url_for('static', filename='plugins/bootstrap/js/bootstrap.js') }}"></script>
+   <script src="{{ url_for('static', filename='plugins/chosen/chosen.jquery.js') }}"></script>
+   <script src="{{ url_for('static', filename='plugins/slider/js/bootstrap-slider.js') }}"></script>
+   <script src="{{ url_for('static', filename='plugins/filestyle/bootstrap-filestyle.js') }}"></script>
+   <script src="{{ url_for('static', filename='plugins/animo/animo.js') }}"></script>
+   <script src="{{ url_for('static', filename='plugins/sparklines/jquery.sparkline.js') }}"></script>
+   <script src="{{ url_for('static', filename='plugins/slimscroll/jquery.slimscroll.js') }}"></script>
+   
+   <script src="{{ url_for('static', filename='plugins/datatable/media/js/jquery.dataTables.js') }}"></script>
+   <script src="{{ url_for('static', filename='plugins/datatable/extensions/datatable-bootstrap/js/dataTables.bootstrap.js') }}"></script>
+   <script src="{{ url_for('static', filename='plugins/datatable/extensions/datatable-bootstrap/js/dataTables.bootstrapPagination.js') }}"></script>
+   <script src="{{ url_for('static', filename='tradify/highcharts.js') }}"></script>
+   <script src="{{ url_for('static', filename='tradify/exporting.js') }}"></script>
+   <script src="{{ url_for('static', filename='plugins/datatable/extensions/ColVis/js/dataTables.colVis.js') }}"></script>
+   <script src="{{ url_for('static', filename='app/js/tradify.js') }}"></script>
+   <!--[if lt IE 8]><script src="js/excanvas.min.js"></script><![endif]-->
+   <script>
+      $(document).ready(function () {
+         // Candlestick
+         $.getJSON('tradify/data.json', function (data) {
+
+            // create the chart
+            Highcharts.stockChart('candlestickChart', {
+
+               chart: {
+               },
+
+
+               rangeSelector: {
+                  selected: 1
+               },
+
+               series: [{
+                  type: 'candlestick',
+                  name: 'SC-BTC',
+                  data: data,
+                  dataGrouping: {
+                     units: [
+                        [
+                           'week', // unit name
+                           [1] // allowed multiples
+                        ], [
+                           'month',
+                           [1, 2, 3, 4, 6]
+                        ]
+                     ]
+                  }
+               }]
+            });
+         });
+      });
+   </script>
+   {% endblock %}
+</body>
+
+</html>

@@ -18,9 +18,11 @@ import logging
 DATABASE = 'cryptoCurrencies.db'
 # UpbitPy init
 krw_markets = []
-def print_tickers(items):
-    for it in items:
-        logging.info('{}: {} won'.format(it['market'], it['trade_price']))
+
+
+# def print_tickers(items):
+#     for it in items:
+#         logging.info('{}: {} won'.format(it['market'], it['trade_price']))
 
 app = Flask(__name__)
 app.config.from_object(__name__)
@@ -43,10 +45,6 @@ except ImportError:
     import _thread as thread
 import time
 
-<<<<<<< HEAD
-
-=======
->>>>>>> 25ba066e91fb159520af7546e0d4a9fca4d18e66
 # DB connection
 def get_db():
     db = getattr(g, '_database', None)
@@ -93,15 +91,23 @@ def realtime_connect():
     toClient = {}
     for market in response.json():
         #print(market["market"],'\'s Real Time Price: ', market["trade_price"])
-        toClient[market["market"]] = [market["trade_price"],market["high_price"],market["low_price"],market["acc_trade_price"],market["prev_closing_price"],market["change_price"],market["change_rate"], market["change"]]
+        toClient[market["market"]] = [market["trade_price"],market["high_price"],market["low_price"],market["acc_trade_price"],market["change_rate"], market["change"]]
     print(toClient)
-    return toClient #dictionary
+    return toClient
    # handle_json(toClient,sid);
    # print("json request delivered.")
    # time.sleep(5)
    # thread.start_new_thread(realtime_connect, (sid,))
 
 # Invoke this one with http://127.0.0.1:5000
+
+@app.route('/test/')
+def test():
+    return render_template('test.html')
+
+
+
+
 @app.route('/')
 def index():
     return render_template('base.html')
@@ -113,14 +119,19 @@ def mainPage():
 @app.route('/landing/')
 def landing():
     return render_template('landing.html')
-@app.route('/price/')
-def price():
+@app.route('/prices.html')
+def prices():
     coinList = query_db('SELECT * FROM Coins')
     print(coinList)
     return render_template('prices.html', list=coinList)
-@app.route('/chart/')
+
+@app.route('/chart.html')
 def chart():
-    return render_template('index.html')
+    return render_template('chart.html')
+
+@app.route('/profile.html')
+def profile():
+    return render_template('profile.html')
 
 
 @socketio.on('my event')
@@ -146,17 +157,12 @@ class ThreadCount(object):
     def getCount(self):
         return len(self)
     def join(self):
-<<<<<<< HEAD
         self[0].join()
 """
 @socketio.on('realtime')
 def realtime_data(json, methods=['GET', 'POST']):
     socketio.send('realtime', json)
 """
-=======
-        self[0].join();
-
->>>>>>> 25ba066e91fb159520af7546e0d4a9fca4d18e66
 # Now, run the app as a server in debug mode or public mode
 if __name__ == '__main__':
     upbit = Upbitpy()

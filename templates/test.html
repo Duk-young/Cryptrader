@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {% block head %}
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js" integrity="sha512-q/dWJ3kcmjBLU4Qc47E4A9kTB4m3wuTY7vkFJDTZKjTs8jhyGQnaUrxa0Ytd0ssMZhbNua9hE+E7Qv1j+DyZwA==" crossorigin="anonymous"></script>
+    {% endblock %}
+    <script type="text/javascript" charset="utf-8">
+    var socket = io();
+    socket.on('connect', function() {
+       console.log(socket.id)
+       socket.emit('create table', data=socket.id );
+       setInterval(function(){ socket.emit('my event', data=socket.id ); }, 5000);
+    });
+    socket.on('create table', function(data){
+        for (const [key, value] of Object.entries(data)) {
+         var tag = document.createElement("p");
+         tag.setAttribute('id', key);
+         var text = document.createTextNode(key+": "+value);
+        tag.appendChild(text);
+        var element = document.getElementById("coins");
+        element.appendChild(tag);
+        }
+    });
+    socket.on('json', function(data) {
+       for (const [key, value] of Object.entries(data)) {
+        var element = document.getElementById(key);
+        document.getElementById(key).innerHTML = key + ": " + value;
+       }
+    });
+    </script>
+</head>
+<style>
+    body{
+        text-align: center;
+    }
+    .menu{
+        margin-left: 5%;
+    }
+</style>
+<body>
+{% block body %}
+<div style="text-align: center; margin: auto; height: 50px">
+    <a class='menu' href="/q1">Find a PC with Price</a>
+    <a class='menu' href="/q2">Find a Laptop with Specs</a>
+    <a class='menu' href="/q3">Find products of the manufacturer</a>
+</div>    
+<div style="text-align: center; margin: auto;">
+    <a class='menu' href="/q4">Find a PC and a Printer with your budget</a>
+    <a class='menu' href="/q5">Add a brand new PC to the database</a>
+</div>
+{% endblock %}
+<div id="coins">
+    <p> Coin List : </p>
+</div>
+</body>
+</html>
