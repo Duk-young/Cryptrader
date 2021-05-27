@@ -3,6 +3,22 @@
 {{super()}}
       <script src="https://cdn.anychart.com/releases/8.0.1/js/anychart-core.min.js"></script>
       <script src="https://cdn.anychart.com/releases/8.0.1/js/anychart-pie.min.js"></script>
+   <style>
+      .RISE {
+         color: crimson;
+         font-weight: bold;
+      }
+
+      .FALL {
+         color: darkblue;
+         font-weight: bold;
+      }
+
+      .EVEN {
+         color: black;
+         font-weight: bold;
+      }
+   </style>
 {% endblock %}
 {% block content %}
             <button type="button" class="btn btn-labeled btn-primary pull-right">
@@ -279,7 +295,7 @@
                <!-- Open Orders -->
                <div class="col-md-12">
                   <div class="panel panel-default">
-                     <div class="panel-heading">Open Orders
+                     <div class="panel-heading">My Holdings
                         <a href="#" data-perform="panel-collapse" data-toggle="tooltip" title="Collapse Panel"
                            class="pull-right">
                            <em class="fa fa-minus"></em>
@@ -289,52 +305,29 @@
                         <table class="table table-bordered table-hover">
                            <thead>
                               <tr>
-                                 <th><i class="fa fa-plus"></i></th>
-                                 <th>Order Date</th>
-                                 <th>Type</th>
-                                 <th>Bid/Ask</th>
-                                 <th>Units Filled SC</th>
-                                 <th>Units Total SC</th>
-                                 <th>Actual Rate</th>
-                                 <th>Estimated Total BTC</th>
-                                 <th><i class="fa fa-times"></i></th>
+                                 <th>Code</th>
+                                 <th>Name</th>
+                                 <th>Average Purchase Price</th>
+                                 <th>Amount</th>
+                                 <th>Total Purchase Price</th>
+                                 <th>Trade Price</th>
+                                 <th>Valuation</th>
+                                 <th>Rate of Return</th>
                               </tr>
                            </thead>
                            <tbody>
-                              <tr>
-                                 <td><i class="fa fa-minus"></i></td>
-                                 <td>
-                                    02/18/2018 05:36:12 PM
-                                 </td>
-                                 <td>Limit Sell</td>
-                                 <td>0.00000305</td>
-                                 <td>0.00000000</td>
-                                 <td>26089.00161498</td>
-                                 <td>
-                                    0.00000000
-                                 </td>
-                                 <td>0.07937253</td>
-                                 <td>
-                                    <i class="fa fa-times btn btn-danger"></i>
-                                 </td>
+                              {% for coin in holdings %}
+                              <tr id="{{coin[0]}}">
+                                 <td>{{coin[0]}}</td>
+                                 <td>{{coin[1]}}</td>
+                                 <td>{{coin[2]}}</td>
+                                 <td>{{coin[3]}}</td>
+                                 <td>{{(coin[2]*coin[3])|int}}</td>
+                                 <td></td>
+                                 <td></td>
+                                 <td></td>
                               </tr>
-                              <tr>
-                                 <td><i class="fa fa-minus"></i></td>
-                                 <td>
-                                    02/18/2018 05:30:12 PM
-                                 </td>
-                                 <td>Limit Buy</td>
-                                 <td>0.00000300</td>
-                                 <td>0.00000000</td>
-                                 <td>27000.00161498</td>
-                                 <td>
-                                    0.00000000
-                                 </td>
-                                 <td>0.07937253</td>
-                                 <td>
-                                    <i class="fa fa-times btn btn-danger"></i>
-                                 </td>
-                              </tr>
+                              {% endfor %}
                            </tbody>
                         </table>
                      </div>
@@ -431,7 +424,7 @@ anychart.onDocumentReady(function() {
   var data = [
       {x: "KRW", value: {{budget}}},
       {% for coin in holdings %}
-      {x: "{{coin[0]}}", value: {{coin[1]*coin[2]}}},
+      {x: "{{coin[1]}}", value: {{coin[2]*coin[3]}}},
       {% endfor %}
   ];
 
@@ -464,26 +457,25 @@ anychart.onDocumentReady(function() {
          for (const [key, value] of Object.entries(data)) {
               {% for coin in holdings %}
               if(key == "{{coin[0]}}"){
-              totalAsset += parseInt(value[0]*parseFloat({{coin[2]}}));
+              document.getElementById(key).children[5].innerHTML = value[0]; // trade price column
+              document.getElementById(key).children[6].innerHTML = parseInt(value[0]*{{coin[3]}}).toLocaleString(); //valuation column
+              var rate = ((value[0] / {{coin[2]}})-1)*100; // rate of return calculation
+              document.getElementById(key).children[7].innerHTML = rate.toFixed(2).toLocaleString() + "%";
+              if(rate < 0){ // Row Color based on rate of return
+               document.getElementById(key).setAttribute('class', 'FALL');
+              }
+              else if(rate > 0){
+               document.getElementById(key).setAttribute('class', 'RISE');
+              }
+              else{
+               document.getElementById(key).setAttribute('class', 'EVEN');
+              }
+              totalAsset += parseInt(value[0]*parseFloat({{coin[3]}}));
               }
               {% endfor %}
          }
          }
          document.getElementById("User_asset").innerHTML = "<i class ='fa fa-krw'>&nbsp</i>" + totalAsset.toLocaleString();
       });
-      function priceChange(key, state) {
-         var element = document.getElementById(key).children[2];
-         if (state == "RISE") {
-            element.style = " outline: 1px solid crimson";
-         }
-         else if (state == "FALL") {
-            element.style = " outline: 1px solid darkblue";
-         }
-         setTimeout(clearBorder, 1000, key);
-      }
-      function clearBorder(key) {
-         var element = document.getElementById(key).children[2];
-         element.style = "outline: 0px;";
-      }
    </script>
    {% endblock %}

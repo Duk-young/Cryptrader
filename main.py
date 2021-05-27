@@ -87,7 +87,7 @@ def realtime_holdings(holdings):
     toClient = {}
     for market in response.json():
         print(market["market"],'\'s Real Time Price: ', market["trade_price"])
-        toClient[market["market"]] = [market["trade_price"],market["change_rate"], market["change"]]
+        toClient[market["market"]] = [market["trade_price"]]
     return toClient
 def realtime_connect():
     """  ws = websocket.WebSocketApp("wss://api.upbit.com/websocket/v1",
@@ -112,10 +112,6 @@ def realtime_connect():
         #print(market["market"],'\'s Real Time Price: ', market["trade_price"])
         toClient[market["market"]] = [market["trade_price"],market["high_price"],market["low_price"],market["acc_trade_price"],market["prev_closing_price"],market["change_price"],market["change_rate"], market["change"]]
     return toClient
-   # handle_json(toClient,sid);
-   # print("json request delivered.")
-   # time.sleep(5)
-   # thread.start_new_thread(realtime_connect, (sid,))
 
 # Invoke this one with http://127.0.0.1:5000
 @app.before_request
@@ -186,6 +182,14 @@ def profile():
         return redirect('/')
     budget = query_db('SELECT budget FROM User_info WHERE uid = ?', [g.user[0]])[0][0]
     holdings = query_db('SELECT code, num, avg_price FROM User_holding WHERE uid = ?', [g.user[0]])
+    names = []
+    count = 0
+    for coin in holdings:
+        name = query_db('SELECT name FROM Coins WHERE code = ?', [coin[0]])[0]
+        coin = coin[:1]+ name +coin[1:]
+        holdings[count] = coin
+        count += 1
+    print(holdings)
     return render_template('profile.html', budget=budget, holdings=holdings)
 @app.route('/signout')
 def signout():
