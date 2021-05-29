@@ -179,6 +179,7 @@ def chart():
 @app.route('/profile')
 def profile():
     if g.user is None:
+        flash("Sign in required", 'sign_in')
         return redirect('/')
     budget = query_db('SELECT budget FROM User_info WHERE uid = ?', [g.user[0]])[0][0]
     holdings = query_db('SELECT code, num, avg_price FROM User_holding WHERE uid = ?', [g.user[0]])

@@ -1,10 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="4f9d74bc-890c-46aa-8db3-414ce95b31c8" name="Default Changelist" comment="profile page added">
+    <list default="true" id="4f9d74bc-890c-46aa-8db3-414ce95b31c8" name="Default Changelist" comment="profile page readability">
+      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_2021-05-20__7_48__Default_Changelist_.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_2021-05-20_오후_7_48_[Default_Changelist]/shelved.patch" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/createDB.py" beforeDir="false" afterPath="$PROJECT_DIR$/createDB.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/cryptoCurrencies.db" beforeDir="false" afterPath="$PROJECT_DIR$/cryptoCurrencies.db" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/templates/profile.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/profile.html" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -238,7 +240,14 @@
       <option name="project" value="LOCAL" />
       <updated>1622147105441</updated>
     </task>
-    <option name="localTasksCounter" value="22" />
+    <task id="LOCAL-00022" summary="profile page readability">
+      <created>1622147694707</created>
+      <option name="number" value="00022" />
+      <option name="presentableId" value="LOCAL-00022" />
+      <option name="project" value="LOCAL" />
+      <updated>1622147694707</updated>
+    </task>
+    <option name="localTasksCounter" value="23" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -272,6 +281,7 @@
     <MESSAGE value="Login implemented" />
     <MESSAGE value="working on profile page" />
     <MESSAGE value="profile page added" />
-    <option name="LAST_COMMIT_MESSAGE" value="profile page added" />
+    <MESSAGE value="profile page readability" />
+    <option name="LAST_COMMIT_MESSAGE" value="profile page readability" />
   </component>
 </project>
