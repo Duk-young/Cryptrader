@@ -367,7 +367,7 @@ anychart.onDocumentReady(function() {
               document.getElementById(key).children[6].innerHTML = "&#8361;"+parseInt(value[0]*{{coin[3]}}).toLocaleString(); //valuation column
               var rate = ((value[0] / {{coin[2]}})-1)*100; // rate of return calculation
               if(rate < 0){ // Row Color based on rate of return
-              document.getElementById(key).children[7].innerHTML = "-" + rate.toFixed(2).toLocaleString() + "%";
+              document.getElementById(key).children[7].innerHTML = rate.toFixed(2).toLocaleString() + "%";
                document.getElementById(key).setAttribute('class', 'FALL');
               }
               else if(rate > 0){
