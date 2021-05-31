@@ -113,6 +113,15 @@ def realtime_connect():
         toClient[market["market"]] = [market["trade_price"],market["high_price"],market["low_price"],market["acc_trade_price"],market["prev_closing_price"],market["change_price"],market["change_rate"], market["change"]]
     return toClient
 
+def realtime_one():
+    url = "https://api.upbit.com/v1/candles/minutes/5?market=KRW-BTC&count=20"
+    headers = {"Accept": "application/json"}
+    response = requests.request("GET", url, headers=headers)
+    toClient = {}
+    for market in response.json():
+        toClient[market["market"]] = [market["candle_date_time_kst"],market["low_price"],market["trade_price"],market["opening_price"],market["high_price"]]
+    return toClient
+
 # Invoke this one with http://127.0.0.1:5000
 @app.before_request
 def check_session():
@@ -121,9 +130,6 @@ def check_session():
         g.user = user
     else:
         g.user = None
-@app.route('/test/')
-def test():
-    return render_template('test.html')
 
 
 # Flask SocketIO handler
@@ -163,18 +169,31 @@ def mainPage():
 @app.route('/landing/')
 def landing():
     return render_template('landing.html')
+    
 @app.route('/prices', methods=['POST','GET'])
 def prices():
     coinList = query_db('SELECT * FROM Coins')
     print(coinList)
     return render_template('prices.html', list=coinList)
+
 @app.route('/prices/<code>')
 def coinSpec(code):
-    return render_template('chart.html', code=code)
+    # candleData = [
+    #   ['Mon', 20, 28, 38, 45],
+    #   ['Tue', 31, 38, 55, 66],
+    #   ['Wed', 50, 55, 77, 80],
+    #   ['Thu', 77, 77, 66, 50],
+    #   ['Fri', 68, 66, 22, 15]]  //example
 
-@app.route('/chart')
-def chart():
-    return render_template('chart.html')
+    candleData = [
+        ['2021-06-01T06:05:00', 43450000, 43450000, 43617000, 43450000],
+        ['2021-06-01T06:10:00', 43584000, 45000000, 43607000, 43537000],
+        ['2021-06-01T06:15:00', 43580000, 43556000, 43596000, 43556000],
+    
+    ]
+
+
+    return render_template('chart.html', code=code, chartData = candleData)
 
 @app.route('/profile')
 def profile():
@@ -208,6 +227,14 @@ def handle_my_custom_event(sid):
 def handle_my_holdings(holdings):
     #print('[%s]' % ', '.join(map(str, holdings)))
     socketio.emit('json', realtime_holdings(holdings))
+
+@socketio.on('one coin')
+def handle_one_coin(sid):
+    print('received json: ' + str(sid))
+    #socketio.emit('json', realtime_connect())
+    socketio.emit('json', realtime_one(), to=sid)
+
+
 @socketio.on('create table')
 def emitJson(sid):
     socketio.emit('create table', realtime_connect(), to=sid)
