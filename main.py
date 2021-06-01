@@ -10,10 +10,7 @@ import requests
 import websocket
 import json
 from flask_socketio import SocketIO, send, emit
-from eventlet import wsgi
-import eventlet
 from upbitpy import Upbitpy
-import logging
 
 DATABASE = 'cryptoCurrencies.db'
 # UpbitPy init
@@ -25,6 +22,8 @@ krw_markets = []
 
 app = Flask(__name__)
 app.config.from_object(__name__)
+# Jinja2 environment add extension
+app.jinja_env.add_extension('jinja2.ext.loopcontrols')
 app.secret_key = 'cse305finalproejct'
 socketio = SocketIO(app)
 #UPBIT ACCESS
@@ -151,7 +150,7 @@ def mainPage():
                     conn = get_db()
                     cur = conn.cursor()
                     cur.execute('INSERT INTO User_login (uid, uname, password) VALUES (?, ?, ?)', [uid, uname, password])
-                    cur.execute('INSERT INTO User_info (uid, budget) VALUES (?, ?)', [uid, 10000000])
+              #      cur.execute('INSERT INTO User_info (uid, budget) VALUES (?, ?)', [uid, 10000000])
                     conn.commit()
                     cur.close()
                     flash("Successfully registered! Please sign in", 'register_success')
@@ -175,12 +174,41 @@ def landing():
 @app.route('/prices', methods=['POST','GET'])
 def prices():
     coinList = query_db('SELECT * FROM Coins')
-    print(coinList)
-    return render_template('prices.html', list=coinList)
+    bookmarks = None;
+    if g.user is not None:
+        bookmarks = query_db('SELECT code FROM User_interests WHERE uid = ?', [g.user[0]])
+    return render_template('prices.html', list=coinList, bookmarks=bookmarks)
+
+@app.route('/bookmarks', methods=['POST','GET'])
+def bookmarkPage():
+    if g.user is not None:
+        coinList = query_db('SELECT name, code FROM User_interests NATURAL JOIN Coins WHERE uid = ?', [g.user[0]])
+        bookmarks = query_db('SELECT code FROM User_interests WHERE uid = ?', [g.user[0]])
+        return render_template('prices.html', list=coinList, bookmarks=bookmarks)
+    return redirect('/')
 
 @app.route('/prices/<code>')
 def coinSpec(code):
-    return render_template('chart.html', code=code)
+    # candleData = [
+    #   ['Mon', 20, 28, 38, 45],
+    #   ['Tue', 31, 38, 55, 66],
+    #   ['Wed', 50, 55, 77, 80],
+    #   ['Thu', 77, 77, 66, 50],
+    #   ['Fri', 68, 66, 22, 15]]  //example
+
+    candleData = [
+        ['2021-06-01T06:05:00', 43450000, 43450000, 43617000, 43450000],
+        ['2021-06-01T06:10:00', 43584000, 45000000, 43607000, 43537000],
+        ['2021-06-01T06:15:00', 43580000, 43556000, 43596000, 43556000],
+    ]
+    coinSpec = query_db('SELECT * FROM Coins NATURAL JOIN Coins_info WHERE code = ? ', [code])
+    print(coinSpec)
+    categories = query_db('SELECT category FROM Coins NATURAL JOIN Coins_category WHERE code = ?', [code])
+    print(categories)
+    organization = query_db('SELECT * FROM Organization, Organization_info, Administrated_by WHERE Administrated_by.code = ?'
+                        'AND Administrated_by.oid = Organization.oid AND Organization.oname = Organization_info.oname', [code])
+    print(organization)
+    return render_template('chart.html', code=code, coinSpecchartData = candleData, coinSpec = coinSpec, organization = organization, categories = categories)
 
 @app.route('/profile')
 def profile():
@@ -189,6 +217,7 @@ def profile():
         return redirect('/')
     budget = query_db('SELECT budget FROM User_info WHERE uid = ?', [g.user[0]])[0][0]
     holdings = query_db('SELECT code, num, avg_price FROM User_holding WHERE uid = ?', [g.user[0]])
+    print(holdings)
     names = []
     count = 0
     for coin in holdings:
@@ -229,6 +258,28 @@ def emitJson(sid):
 @socketio.on('update')
 def update(json):
     socketio.emit('update', json, broadcast=True)
+
+@socketio.on('deleteBookmark')
+def deleteBookmark(uid, code):
+    duplicate_check = query_db('SELECT * FROM User_interests WHERE uid = ? AND code = ?', [uid,code])
+    if len(duplicate_check) != 0:
+        print(str(uid) + code)
+        conn = get_db()
+        cur = conn.cursor()
+        cur.execute('DELETE FROM User_interests WHERE uid = ? AND code = ?', [uid, code])
+        conn.commit()
+        cur.close()
+
+@socketio.on('Bookmark')
+def Bookmark(uid, code):
+    duplicate_check = query_db('SELECT * FROM User_interests WHERE uid = ? AND code = ?', [uid, code])
+    if len(duplicate_check) == 0:
+        print(str(uid) + code)
+        conn = get_db()
+        cur = conn.cursor()
+        cur.execute('INSERT INTO User_interests (uid, code) VALUES (?, ?)', [uid, code])
+        conn.commit()
+        cur.close()
 
 
 class ThreadCount(object):

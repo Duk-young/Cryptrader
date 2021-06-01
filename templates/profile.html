@@ -237,8 +237,8 @@
                               <tr>
                                  <th>Code</th>
                                  <th>Name</th>
-                                 <th>Average Purchase Price</th>
                                  <th>Amount</th>
+                                 <th>Average Purchase Price</th>
                                  <th>Total Purchase Price</th>
                                  <th>Trade Price</th>
                                  <th>Valuation</th>
@@ -250,8 +250,8 @@
                               <tr id="{{coin[0]}}">
                                  <td>{{coin[0]}}</td>
                                  <td>{{coin[1]}}</td>
-                                 <td>&#8361;{{coin[2]}}</td>
-                                 <td>{{coin[3]}}</td>
+                                 <td>{{coin[2]}}</td>
+                                 <td>&#8361;{{coin[3]}}</td>
                                  <td>&#8361;{{(coin[2]*coin[3])|int}}</td>
                                  <td></td>
                                  <td></td>
@@ -363,9 +363,9 @@ anychart.onDocumentReady(function() {
          for (const [key, value] of Object.entries(data)) {
               {% for coin in holdings %}
               if(key == "{{coin[0]}}"){
-              document.getElementById(key).children[5].innerHTML = "&#8361;"+value[0]; // trade price column
-              document.getElementById(key).children[6].innerHTML = "&#8361;"+parseInt(value[0]*{{coin[3]}}).toLocaleString(); //valuation column
-              var rate = ((value[0] / {{coin[2]}})-1)*100; // rate of return calculation
+              document.getElementById(key).children[5].innerHTML = "&#8361;"+value[0].toLocaleString(); // trade price column
+              document.getElementById(key).children[6].innerHTML = "&#8361;"+parseInt(value[0]*{{coin[2]}}).toLocaleString(); //valuation column
+              var rate = ((value[0] / {{coin[3]}})-1)*100; // rate of return calculation
               if(rate < 0){ // Row Color based on rate of return
               document.getElementById(key).children[7].innerHTML = rate.toFixed(2).toLocaleString() + "%";
                document.getElementById(key).setAttribute('class', 'FALL');
@@ -378,7 +378,7 @@ anychart.onDocumentReady(function() {
                document.getElementById(key).children[7].innerHTML = rate.toFixed(2).toLocaleString() + "%";
                document.getElementById(key).setAttribute('class', 'EVEN');
               }
-              totalAsset += parseInt(value[0]*parseFloat({{coin[3]}}));
+              totalAsset += parseInt(value[0]*parseFloat({{coin[2]}}));
               }
               {% endfor %}
          }

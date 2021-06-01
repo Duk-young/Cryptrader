@@ -152,7 +152,7 @@
                             <div class="tabbable-panel">
                                 <div class="tabbable-line">
                                     <ul class="nav nav-tabs border-bottom-none">
-                                        {%with register_error = get_flashed_messages(category_filter=["register"])%}
+                                        {%with register_error = get_flashed_messages(category_filter=["register_fail"])%}
                                        {%if register_error %}
                                         <li class="active btn btn-primary text-white">
                                             <a class="normal-font-w border-none" href="#tab_default_1"
