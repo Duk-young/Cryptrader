@@ -69,6 +69,7 @@ def query_db(query, args=(), one=False):
       #  rv.insert(0, tnames)
     cur.close()
     return (rv[0] if rv else None) if one else rv
+
 def realtime_holdings(holdings):
     if len(holdings) == 0:
         return None
@@ -113,13 +114,14 @@ def realtime_connect():
         toClient[market["market"]] = [market["trade_price"],market["high_price"],market["low_price"],market["acc_trade_price"],market["prev_closing_price"],market["change_price"],market["change_rate"], market["change"]]
     return toClient
 
+
 def realtime_one():
     url = "https://api.upbit.com/v1/candles/minutes/5?market=KRW-BTC&count=20"
     headers = {"Accept": "application/json"}
     response = requests.request("GET", url, headers=headers)
     toClient = {}
     for market in response.json():
-        toClient[market["market"]] = [market["candle_date_time_kst"],market["low_price"],market["trade_price"],market["opening_price"],market["high_price"]]
+        toClient[market["candle_date_time_kst"]] = [market["candle_date_time_kst"],market["low_price"],market["trade_price"],market["opening_price"],market["high_price"]]
     return toClient
 
 # Invoke this one with http://127.0.0.1:5000
@@ -178,22 +180,7 @@ def prices():
 
 @app.route('/prices/<code>')
 def coinSpec(code):
-    # candleData = [
-    #   ['Mon', 20, 28, 38, 45],
-    #   ['Tue', 31, 38, 55, 66],
-    #   ['Wed', 50, 55, 77, 80],
-    #   ['Thu', 77, 77, 66, 50],
-    #   ['Fri', 68, 66, 22, 15]]  //example
-
-    candleData = [
-        ['2021-06-01T06:05:00', 43450000, 43450000, 43617000, 43450000],
-        ['2021-06-01T06:10:00', 43584000, 45000000, 43607000, 43537000],
-        ['2021-06-01T06:15:00', 43580000, 43556000, 43596000, 43556000],
-    
-    ]
-
-
-    return render_template('chart.html', code=code, chartData = candleData)
+    return render_template('chart.html', code=code)
 
 @app.route('/profile')
 def profile():
@@ -232,7 +219,7 @@ def handle_my_holdings(holdings):
 def handle_one_coin(sid):
     print('received json: ' + str(sid))
     #socketio.emit('json', realtime_connect())
-    socketio.emit('json', realtime_one(), to=sid)
+    socketio.emit('json', realtime_one())
 
 
 @socketio.on('create table')
