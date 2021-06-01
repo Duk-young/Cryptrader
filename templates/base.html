@@ -49,11 +49,6 @@
             <ul class="nav navbar-nav navbar-right mt0">
                <li class="dropdown dropdown-list">
                   <a href="#" data-toggle="dropdown" data-play="fadeIn" class="dropdown-toggle">
-                     <strong><i class="fa fa-btc"></i> Wallet</strong>
-                  </a>
-               </li>
-               <li class="dropdown dropdown-list">
-                  <a href="#" data-toggle="dropdown" data-play="fadeIn" class="dropdown-toggle">
                      <em class="fa fa-bell"></em>
                      <div class="label label-danger">3</div>
                   </a>
@@ -208,12 +203,14 @@
                      <span class="item-text">Live Pricing</span>
                   </a>
                </li>
+                {% if g.user != None %}
                <li class="">
-                  <a href="datatable.html" title="Dashboard" class="">
-                     <em class="fa fa-gear"></em>
-                     <span class="item-text">Shortcodes</span>
+                  <a href="/bookmarks" title="Dashboard" class="">
+                     <em class="fa fa-star"></em>
+                     <span class="item-text">Bookmarks</span>
                   </a>
                </li>
+               {% endif %}
                <li>
                   <a href="#" title="Pages" data-toggle="collapse-next" class="has-submenu">
                      <em class="fa fa-file-text"></em>
@@ -221,12 +218,12 @@
                   </a>
                   <ul class="nav collapse ">
                      <li>
-                        <a href="login.html" title="Login" data-toggle="" class="no-submenu">
+                        <a href="/" title="Login" data-toggle="" class="no-submenu">
                            <span class="item-text">Login</span>
                         </a>
                      </li>
                      <li>
-                        <a href="signup.html" title="Sign up" data-toggle="" class="no-submenu">
+                        <a href="/" title="Sign up" data-toggle="" class="no-submenu">
                            <span class="item-text">Sign up</span>
                         </a>
                      </li>

@@ -2,6 +2,12 @@
    {% block head %}
    {{ super() }}
    <style>
+      .bookmark{
+         color: lightgray;
+      }
+      .bookmarked{
+         color: darkorange; !important
+      }
       .RISE {
          color: crimson;
       }
@@ -16,6 +22,9 @@
 
       .opening {
          color: gray !important
+      }
+      td{
+        font-weight:bold;
       }
    </style>
    {% endblock %}
@@ -52,6 +61,9 @@
                                                    <th>Opening price</th>
                                                    <th>+24hr</th>
                                                    <th>%24hr</th>
+                                                   {% if g.user != None %}
+                                                   <th style="text-align:center;">Bookmark</th>
+                                                   {% endif %}
                                                 </tr>
                                              </thead>
                                              <tbody></tbody>
@@ -59,15 +71,29 @@
                                                 {%for coin in list%}
                                                 <tr id={{coin[1]}} style="cursor:pointer;"
                                                    onClick="location.href='./prices/{{coin[1]}}'">
-                                                   <th>{{coin[1].split("KRW-")[1]}}</th>
-                                                   <th>{{coin[0]}}</th>
-                                                   <th>Price</th>
-                                                   <th>24hour high price</th>
-                                                   <th>24hour low price</th>
-                                                   <th>Volume</th>
-                                                   <th class="opening">Opening price</th>
-                                                   <th>+24hr</th>
-                                                   <th>%24hr</th>
+                                                   <td>{{coin[1].split("KRW-")[1]}}</td>
+                                                   <td>{{coin[0]}}</td>
+                                                   <td>Price</td>
+                                                   <td>24hour high price</td>
+                                                   <td>24hour low price</td>
+                                                   <td>Volume</td>
+                                                   <td class="opening">Opening price</td>
+                                                   <td>+24hr</td>
+                                                   <td>%24hr</td>
+                                                   {% if g.user != None %}
+                                                   {% set check = namespace(value=False) %}
+                                                   {% for bookmark in bookmarks %}
+                                                   {% if coin[1] == bookmark[0] %}
+                                                   {% set check.value = True %}
+                                                   {% break %}
+                                                   {% endif %}
+                                                   {% endfor %}
+                                                   {% if check.value == True %}
+                                                   <td style="cursor:pointer; text-align: center;" onClick="bookmarkClick(event, this, '{{coin[1]}}');"><em class="bookmarked bookmark fa fa-star"></em></td>
+                                                   {% else %}
+                                                   <td style="cursor:pointer; text-align: center;" onClick="bookmarkClick(event, this, '{{coin[1]}}');"><em class="bookmark fa fa-star"></em></td>
+                                                   {% endif %}
+                                                   {% endif %}
                                                 </tr>
                                                 {% endfor %}
                                              </tfoot>
@@ -129,6 +155,7 @@
       socket.on('json', function (data) {
          for (const [key, value] of Object.entries(data)) {
             var table = document.getElementById(key);
+            if(table != null){
             table.setAttribute('class', value[7]);
             var oldPrice = parseFloat((document.getElementById(key).children[2].innerHTML).split('₩').join('').split(',').join(''));
             var newPrice = parseFloat(value[0]);
@@ -155,6 +182,7 @@
                document.getElementById(key).children[7].innerHTML = "&#8361;" + value[5].toLocaleString();
                document.getElementById(key).children[8].innerHTML = parseFloat(value[6] * 100).toFixed(2).toLocaleString() + "%";
             }
+            }
          }
       });
       function priceChange(key, state) {
@@ -170,6 +198,21 @@
       function clearBorder(key) {
          var element = document.getElementById(key).children[2];
          element.style = "outline: 0px;";
+      }
+      function bookmarkClick(e, element,code){
+       console.log(code);
+       e.stopPropagation();
+       var classes = element.children[0].classList;
+       if(classes.length == 4){
+        classes.remove("bookmarked");
+        socket.emit('deleteBookmark', data = {{g.user[0]}}, code);
+       }
+       else{
+        classes.add("bookmarked");
+        socket.emit('Bookmark', data = {{g.user[0]}}, code);
+        }
+       console.log(element.children[0].classList);
+       console.log(code);
       }
    </script>
    {% endblock %}
