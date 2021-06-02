@@ -39,7 +39,7 @@ cur.execute('''CREATE TABLE User_holding
 
 cur.execute('''DROP TABLE IF EXISTS Transaction_history''')
 cur.execute('''CREATE TABLE Transaction_history
-               (uid INTEGER, code TEXT, num REAL, price REAL, date TEXT, trade_type INTEGER, completed INTEGER, PRIMARY KEY (uid,code), FOREIGN KEY (uid) REFERENCES User_login, FOREIGN KEY (code) REFERENCES Coins)''')
+               (uid INTEGER, code TEXT, num REAL, price REAL, date TEXT, trade_type INTEGER, completed INTEGER, PRIMARY KEY (uid,code,date), FOREIGN KEY (uid) REFERENCES User_login, FOREIGN KEY (code) REFERENCES Coins)''')
 
 cur.execute('''DROP TABLE IF EXISTS Organization''')
 cur.execute('''CREATE TABLE Organization
@@ -70,11 +70,42 @@ BEGIN
  INSERT INTO User_info VALUES (new.uid, 10000000);
  END;''')
 
-cur.execute('''CREATE TRIGGER insert_transaction1 AFTER INSERT ON Transaction_history
-WHEN new.code NOT IN (SELECT code FROM User_holding WHERE uid = new.uid)
+cur.execute('''CREATE TRIGGER check_transaction BEFORE INSERT ON Transaction_history
+WHEN (new.trade_type = 1) AND (SELECT budget FROM User_info WHERE uid = new.uid) < (new.num * new.price)
 BEGIN
-     INSERT INTO User_holding (uid,code,num,avg_price) VALUES (new.uid, new.code, new.num, new.price);
+     SELECT RAISE(FAIL, "Not enough budget");
 END;''')
+cur.execute('''CREATE TRIGGER check_holding AFTER INSERT ON Transaction_history
+WHEN new.completed = 1 AND (SELECT avg_price*num FROM User_holding WHERE uid = new.uid AND code = new.code) < 5
+BEGIN
+     DELETE FROM User_holding WHERE uid = new.uid AND code = new.code;
+END;''')
+
+cur.execute('''CREATE TRIGGER insert_transaction1 AFTER INSERT ON Transaction_history
+WHEN new.code NOT IN (SELECT code FROM User_holding WHERE uid = new.uid) AND new.completed = 1
+BEGIN
+    INSERT INTO User_holding (uid,code,num,avg_price) VALUES (new.uid, new.code, new.num, new.price);
+    UPDATE User_info
+    SET budget = CASE WHEN new.trade_type > 0 THEN (budget - (new.num*new.price))
+    ELSE (budget + (new.num*new.price)) END
+    WHERE uid = new.uid;
+END;''')
+
+cur.execute('''CREATE TRIGGER insert_transaction2 BEFORE INSERT ON Transaction_history
+WHEN new.code IN (SELECT code FROM User_holding WHERE uid = new.uid) AND new.completed = 1
+BEGIN
+    UPDATE User_holding 
+    SET num = CASE WHEN new.trade_type > 0 THEN (num + new.num)
+    ELSE (num - new.num) END,
+    avg_price = CASE WHEN new.trade_type > 0 THEN (((num*avg_price) + (new.num*new.price))/(num+new.num))
+    ELSE (avg_price) END
+    WHERE uid = new.uid AND code = new.code;
+    UPDATE User_info
+    SET budget = CASE WHEN new.trade_type > 0 THEN (budget - (new.num*new.price))
+    ELSE (budget + (new.num*new.price)) END
+    WHERE uid = new.uid;
+END;''')
+
 
 # Insert rows of data
 
@@ -263,7 +294,6 @@ cur.execute("INSERT INTO User_login VALUES ( 20,'Carrillo', 'test')")
 
 cur.execute("INSERT INTO User_holding VALUES ( 1, 'KRW-MLK', 828.73502754, 2516)")
 cur.execute("INSERT INTO User_holding VALUES ( 1, 'KRW-CRO', 1269.77360992, 306)")
-cur.execute("INSERT INTO User_holding VALUES ( 2, 'KRW-DOGE', 38.98372839, 50)")
 cur.execute("INSERT INTO User_holding VALUES ( 2, 'KRW-NEO', 63.36231144, 68780)")
 cur.execute("INSERT INTO User_holding VALUES ( 2, 'KRW-WAVES', 142.72947923, 16135)")
 cur.execute("INSERT INTO User_holding VALUES ( 3, 'KRW-GAS', 48.39473823, 11441)")
@@ -285,7 +315,9 @@ cur.execute("INSERT INTO User_holding VALUES ( 9, 'KRW-ENJ', 103.87398423, 1603)
 cur.execute("INSERT INTO User_holding VALUES ( 10, 'KRW-MLK', 452.98472938, 2516)")
 cur.execute("INSERT INTO User_holding VALUES ( 10, 'KRW-DOGE', 290.33890935, 50 )")
 
-cur.execute("INSERT INTO Transaction_history VALUES (2, 'KRW-BTC', 1, 35000000, '2021-06-01', 1, 1)")
+#cur.execute("INSERT INTO Transaction_history VALUES (2, 'KRW-BTC', 1, 35000000, '2021-06-01', 1, 1)")
+#cur.execute("INSERT INTO Transaction_history VALUES (2, 'KRW-BTC', 1, 25000000, '2021-06-011', 1, 1)")
+#cur.execute("INSERT INTO Transaction_history VALUES (2, 'KRW-BTC', 1, 40000000, '2021-06-021', 1, 1)")
 # Save (commit) the changes
 conn.commit()
 

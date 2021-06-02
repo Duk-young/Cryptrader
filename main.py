@@ -9,6 +9,8 @@ import uuid
 import requests
 import websocket
 import json
+from time import strftime
+import datetime
 from flask_socketio import SocketIO, send, emit
 from upbitpy import Upbitpy
 
@@ -68,7 +70,6 @@ def query_db(query, args=(), one=False):
       #  rv.insert(0, tnames)
     cur.close()
     return (rv[0] if rv else None) if one else rv
-
 def realtime_holdings(holdings):
     if len(holdings) == 0:
         return None
@@ -112,10 +113,21 @@ def realtime_connect():
         #print(market["market"],'\'s Real Time Price: ', market["trade_price"])
         toClient[market["market"]] = [market["trade_price"],market["high_price"],market["low_price"],market["acc_trade_price"],market["prev_closing_price"],market["change_price"],market["change_rate"], market["change"]]
     return toClient
+def realtime_one(code):
+    url = "https://api.upbit.com/v1/ticker"
+    querystring = {"markets": code}
+    headers = {"Accept": "application/json"}
+    response = requests.request("GET", url, headers=headers, params=querystring)
+    # url = "https://api.upbit.com/v1/market/all"
+    toClient = {}
+    for market in response.json():
+        # print(market["market"],'\'s Real Time Price: ', market["trade_price"])
+        toClient[market["market"]] = [market["trade_price"], market["high_price"], market["low_price"],
+                                      market["change_price"],market["change_rate"], market["change"],market["prev_closing_price"]]
+    return toClient
 
-
-def realtime_one():
-    url = "https://api.upbit.com/v1/candles/minutes/5?market=KRW-BTC&count=20"
+def realtime_candle(code):
+    url = "https://api.upbit.com/v1/candles/minutes/5?market="+code+"&count=40"
     headers = {"Accept": "application/json"}
     response = requests.request("GET", url, headers=headers)
     toClient = {}
@@ -161,18 +173,18 @@ def mainPage():
         else:
             uname = request.form['uname']
             password = request.form['password']
-            user = query_db('SELECT uid, uname FROM User_login WHERE uname = ? AND password = ?', [uname, password])
+            user = query_db('SELECT uid, uname, budget FROM User_login NATURAL JOIN User_info WHERE uname = ? AND password = ?', [uname, password])
             if len(user) != 0:
                 session['user_info'] = user[0]
                 return redirect(url_for('prices'))
             flash("Invalid username or password", 'sign_in')
     return render_template('landing.html')
-@app.route('/landing/')
-def landing():
-    return render_template('landing.html')
     
 @app.route('/prices', methods=['POST','GET'])
 def prices():
+    if g.user is None:
+        flash("Sign in required", 'sign_in')
+        return redirect('/')
     coinList = query_db('SELECT * FROM Coins')
     bookmarks = None;
     if g.user is not None:
@@ -195,20 +207,31 @@ def coinSpec(code):
     #   ['Wed', 50, 55, 77, 80],
     #   ['Thu', 77, 77, 66, 50],
     #   ['Fri', 68, 66, 22, 15]]  //example
-
-    candleData = [
-        ['2021-06-01T06:05:00', 43450000, 43450000, 43617000, 43450000],
-        ['2021-06-01T06:10:00', 43584000, 45000000, 43607000, 43537000],
-        ['2021-06-01T06:15:00', 43580000, 43556000, 43596000, 43556000],
-    ]
+    if g.user is None:
+        flash("Sign in required", 'sign_in')
+        return redirect('/')
+    budget = None
+    holdings = None
+    if g.user is not None:
+        budget = query_db('SELECT budget FROM User_info WHERE uid = ? ', [g.user[0]])[0][0]
+        holdings = query_db('SELECT num, avg_price FROM User_holding WHERE uid = ? AND code = ?', [g.user[0],code])
+    print ("holding=" + str(holdings))
+    if len(holdings) != 0:
+        holdings = holdings[0]
     coinSpec = query_db('SELECT * FROM Coins NATURAL JOIN Coins_info WHERE code = ? ', [code])
+    if len(coinSpec) != 0:
+        coinSpec = coinSpec[0]
+    else:
+        coinSpec = query_db('SELECT * FROM Coins WHERE code = ? ', [code])[0]
     print(coinSpec)
     categories = query_db('SELECT category FROM Coins NATURAL JOIN Coins_category WHERE code = ?', [code])
     print(categories)
     organization = query_db('SELECT * FROM Organization, Organization_info, Administrated_by WHERE Administrated_by.code = ?'
                         'AND Administrated_by.oid = Organization.oid AND Organization.oname = Organization_info.oname', [code])
     print(organization)
-    return render_template('chart.html', code=code, coinSpecchartData = candleData, coinSpec = coinSpec, organization = organization, categories = categories)
+    transaction_history = query_db('SELECT num, price, date, trade_type, completed FROM Transaction_history WHERE uid = ? AND code = ?', [g.user[0],code])
+    print(transaction_history)
+    return render_template('chart.html', code=code, coinSpec = coinSpec, organization = organization, categories = categories, budget = budget, holdings = holdings, transaction_history = transaction_history)
 
 @app.route('/profile')
 def profile():
@@ -245,10 +268,10 @@ def handle_my_holdings(holdings):
     socketio.emit('json', realtime_holdings(holdings))
 
 @socketio.on('one coin')
-def handle_one_coin(sid):
-    print('received json: ' + str(sid))
+def handle_one_coin(code):
+    print('received json: ' + str(code))
     #socketio.emit('json', realtime_connect())
-    socketio.emit('json', realtime_one())
+    socketio.emit('coinSpec',{'chart':realtime_candle(code), 'coin':realtime_one(code)})
 
 
 @socketio.on('create table')
@@ -278,6 +301,14 @@ def Bookmark(uid, code):
         conn = get_db()
         cur = conn.cursor()
         cur.execute('INSERT INTO User_interests (uid, code) VALUES (?, ?)', [uid, code])
+        conn.commit()
+        cur.close()
+
+@socketio.on('placeOrder')
+def placeOrder(data):
+        conn = get_db()
+        cur = conn.cursor()
+        cur.execute('INSERT INTO Transaction_history (uid, code, num, price, date, trade_type, completed) VALUES (?, ?, ?, ?, ?, ?, ?)', [data[0],data[1],data[2],data[3],strftime("%Y-%m-%d %H:%M:%S"),data[5],data[6]])
         conn.commit()
         cur.close()
 

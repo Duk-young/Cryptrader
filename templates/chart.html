@@ -1,4 +1,35 @@
 {% extends 'base.html' %}
+{% block head %}
+{{super()}}
+   <style>
+      .RISE {
+         color: crimson;
+         font-weight: bold;
+      }
+
+      .FALL {
+         color: darkblue;
+         font-weight: bold;
+      }
+
+      .EVEN {
+         color: black;
+         font-weight: bold;
+      }
+   input::-webkit-outer-spin-button,
+   input::-webkit-inner-spin-button {
+   -webkit-appearance: none;
+   margin: 0;
+   }
+      .tag{
+          border: 2px solid orange;
+          background: orange;
+          border-radius: 5px;
+          color: black;
+          font-size: 15px;
+      }
+   </style>
+{% endblock %}
 {% block content %}
 <h3>Coin Dashboard
 </h3>
@@ -11,7 +42,22 @@
             <div class="panel panel-default">
                <div class="panel-collapse">
                   <div class="panel-body">
-                     <h4>{{code}}</h4>
+                     <div style="display:inline-flex; align-items: baseline;">
+                     <h4 style="font-size:18pt; font-weight:bold;">{{coinSpec[0]}} ({{code.split("KRW-")[1]}})</h4>
+                        {% for tag in categories %}
+                        <p class="tag">{{tag[0]}}</p>
+                        {% endfor %}
+                     </div>
+                     <div id="{{code}}">
+                     <div class="RISE" style="display: flex">
+                        <p style="font-size:25pt"></p>
+                     <p style="font-size:12pt; align-self:flex-end; margin-left:10px"></p>
+                     </div>
+                        <div style="display: flex; font-size:16pt">
+                           <p style="font-size:16pt"></i></p>
+                           <p style="margin-left: 10px;"></i></p>
+                           </div>
+                     </div>
                      <div id="chart_div" class="h-500">
                      </div>
                   </div>
@@ -82,78 +128,61 @@
       </div>
    </div>
 </div>
-
+   <h4>My {{coinSpec[0]}}</h4>
+   <div class="table-responsive">
+                        <table class="table table-bordered table-hover">
+                           <thead>
+                              <tr>
+                                 <th>Amount</th>
+                                 <th>Average Purchase Price</th>
+                                 <th>Total Purchase Price</th>
+                                 <th>Evaluation</th>
+                                 <th>Rate of Return</th>
+                              </tr>
+                           </thead>
+                           <tbody>
+                           {% if holdings|length != 0 %}
+                              <tr id="{{g.user[1]}}" style="background: white;">
+                                 <td>{{holdings[0]}}&nbsp;{{code.split("KRW-")[1]}}</td>
+                                 <td>&#8361;{{"{:,}".format(holdings[1]|int)}}</td>
+                                 <td>&#8361;{{"{:,}".format((holdings[0]*holdings[1])|int)}}</td>
+                                 <td></td>
+                                 <td></td>
+                              </tr>
+                           {% endif %}
+                           </tbody>
+                        </table>
+                     </div>
 <div class="row">
    <div class="col-lg-6">
       <div class="panel panel-default">
-         <div class="panel-heading">Bid Price
+         <div class="panel-heading">Buy
             <a href="#" data-perform="panel-collapse" data-toggle="tooltip" title="Collapse Panel" class="pull-right">
             <em class="fa fa-minus"></em>
             </a>
          </div>
          <div class="pannel panel-body">
-            <label class="col-sm-2 control-label m-t-9">Units</label>
+            <label class="col-sm-2 control-label m-t-9">Total</label>
             <div class="input-group col-sm-10 m-b">
-               <span class="input-group-addon btn-primary group-btn-hover"><i class="fa fa-angle-double-up"></i> Max</span>
-               <input type="text" placeholder="0.00000000" class="form-control text-right">
+               <span class="input-group-addon btn-primary group-btn-hover" onclick="document.getElementById('buyTotal').value = {{budget|int}}; buyUnitInput(document.getElementById('buyTotal').value);"><i class="fa fa-angle-double-up"></i> Max</span>
+               <input id="buyTotal" type="number" placeholder="0" class="form-control text-right" step="10000" max="{{budget|int}}" min="0" oninput="buyUnitInput(this.value)" onKeyUp="if(this.value>{{budget}}){this.value='{{budget|int}}';}else if(this.value<0){this.value='0';}">
             </div>
             <div class="m-t-9">
-               <label class="col-sm-2 control-label m-t-9">Bid</label>
-               <div class="input-group m-b">
-                  <div class="input-group-btn">
-                     <button type="button" data-toggle="dropdown" class="btn btn-default dropdown-toggle">Price
-                     <span class="caret"></span>
-                     </button>
-                     <ul class="dropdown-menu">
-                        <li><a href="javascript:void(0);">Bid</a>
-                        </li>
-                        <li><a href="javascript:void(0);">Ask</a>
-                        </li>
-                     </ul>
-                  </div>
-                  <input type="text" class="form-control text-right" placeholder="0.00000000">
-               </div>
-            </div>
-            <div class="row">
-               <div class="btn-group m-t-9 col-md-6 col-sm-12 col-xs-12">
-                  <button type="button" data-toggle="dropdown" class="btn btn-primary dropdown-toggle btn-block">Limit
-                  <span class="caret"></span>
-                  </button>
-                  <ul role="menu" class="dropdown-menu">
-                     <li><a href="javascript:void(0);">Limit</a>
-                     </li>
-                     <li><a href="javascript:void(0);">Conditional</a>
-                     </li>
-                  </ul>
-               </div>
-               <div class="btn-group m-t-9 col-md-6 col-sm-12 col-xs-12">
-                  <button type="button" data-toggle="dropdown" class="btn btn-danger dropdown-toggle btn-block">Good 'Till Cancelled
-                  <span class="caret"></span>
-                  </button>
-                  <ul role="menu" class="dropdown-menu">
-                     <li><a href="javascript:void(0);">Good 'Till Cancelled</a>
-                     </li>
-                     <li><a href="javascript:void(0);">Immediate or Cancel</a>
-                     </li>
-                  </ul>
-               </div>
-            </div>
-            <div class="m-t-9">
-               <label class="col-sm-2 control-label m-t-9">Total</label>
+               <label class="col-sm-2 control-label m-t-9">Units</label>
                <div class="input-group col-sm-10 m-b">
                   <span class="input-group-addon"><i class="fa fa-btc"></i></span>
-                  <input type="text" placeholder="0.00000000" class="form-control text-right">
+                  <input id="buyUnit" type="number" placeholder="0.00000000" class="form-control text-right" disabled>
                </div>
             </div>
             <div class="m-t-9">
-               <button type="button" class="btn btn-primary btn-block"><i class="fa fa-plus"></i> Buy Siacoin</button>
+               <button type="submit" class="btn btn-primary btn-block" onclick="placeOrder(1)"><i class="fa fa-plus"></i> Buy {{code.split("KRW-")[1]}}</button>
             </div>
          </div>
       </div>
    </div>
    <div class="col-lg-6">
       <div class="panel panel-default">
-         <div class="panel-heading">Ask Price
+         <div class="panel-heading">Sell
             <a href="#" data-perform="panel-collapse" data-toggle="tooltip" title="Collapse Panel" class="pull-right">
             <em class="fa fa-minus"></em>
             </a>
@@ -161,59 +190,23 @@
          <div class="pannel panel-body">
             <label class="col-sm-2 control-label m-t-9">Units</label>
             <div class="input-group col-sm-10 m-b">
-               <span class="input-group-addon btn-primary group-btn-hover"><i class="fa fa-angle-double-up"></i> Max</span>
-               <input type="text" placeholder="0.00000000" class="form-control text-right">
-            </div>
-            <div class="m-t-9">
-               <label class="col-sm-2 control-label m-t-9">Ask</label>
-               <div class="input-group m-b">
-                  <div class="input-group-btn">
-                     <button type="button" data-toggle="dropdown" class="btn btn-default dropdown-toggle">Price
-                     <span class="caret"></span>
-                     </button>
-                     <ul class="dropdown-menu">
-                        <li><a href="javascript:void(0);">Ask</a>
-                        </li>
-                        <li><a href="javascript:void(0);">Bid</a>
-                        </li>
-                     </ul>
-                  </div>
-                  <input type="text" class="form-control text-right" placeholder="0.00000000">
-               </div>
-            </div>
-            <div class="row">
-               <div class="btn-group m-t-9 col-md-6 col-sm-12 col-xs-12">
-                  <button type="button" data-toggle="dropdown" class="btn btn-primary dropdown-toggle btn-block">Limit
-                  <span class="caret"></span>
-                  </button>
-                  <ul role="menu" class="dropdown-menu">
-                     <li><a href="javascript:void(0);">Limit</a>
-                     </li>
-                     <li><a href="javascript:void(0);">Conditional</a>
-                     </li>
-                  </ul>
-               </div>
-               <div class="btn-group m-t-9 col-md-6 col-sm-12 col-xs-12">
-                  <button type="button" data-toggle="dropdown" class="btn btn-danger dropdown-toggle btn-block">Good 'Till Cancelled
-                  <span class="caret"></span>
-                  </button>
-                  <ul role="menu" class="dropdown-menu">
-                     <li><a href="javascript:void(0);">Good 'Till Cancelled</a>
-                     </li>
-                     <li><a href="javascript:void(0);">Immediate or Cancel</a>
-                     </li>
-                  </ul>
-               </div>
+               {% if holdings|length != 0 %}
+               <span class="input-group-addon btn-primary group-btn-hover" onclick="document.getElementById('sellUnit').value = {{holdings[0]}}; sellUnitInput(document.getElementById('sellUnit').value)"><i class="fa fa-angle-double-up"></i> Max</span>
+               <input id="sellUnit" type="number" placeholder="0" class="form-control text-right" step="any" max="{{holdings[0]}}" min="0" oninput="sellUnitInput(this.value)" onKeyUp="if(this.value>{{holdings[0]}}){this.value='{{holdings[0]}}';}else if(this.value<0){this.value='0';}">
+               {% else %}
+               <span class="input-group-addon btn-primary group-btn-hover" ><i class="fa fa-angle-double-up"></i> Max</span>
+               <input id="sellUnit" type="number" placeholder="0" class="form-control text-right" step="any"  min="0" oninput="sellUnitInput(this.value)">
+               {% endif %}
             </div>
             <div class="m-t-9">
                <label class="col-sm-2 control-label m-t-9">Total</label>
                <div class="input-group col-sm-10 m-b">
                   <span class="input-group-addon"><i class="fa fa-btc"></i></span>
-                  <input type="text" placeholder="0.00000000" class="form-control text-right">
+                  <input id="sellTotal" type="number" placeholder="0.00000000" class="form-control text-right" disabled>
                </div>
             </div>
             <div class="m-t-9">
-               <button type="button" class="btn btn-primary btn-block"><i class="fa fa-minus"></i> Sell Siacoin</button>
+               <button type="submit" class="btn btn-primary btn-block" onclick="placeOrder(0)"><i class="fa fa-minus"></i> Sell {{code.split("KRW-")[1]}}</button>
             </div>
          </div>
       </div>
@@ -222,7 +215,7 @@
 
 
 <!-- Orders Book -->
-<div class="row">
+<!--<div class="row">
    <div class="col-md-12">
       <div class="panel panel-default">
          <div class="panel-heading">Orders Book
@@ -594,9 +587,9 @@
             </div>
          </div>
       </div>
-   </div>
+   </div>-->
    <!-- Open Orders -->
-   <div class="col-md-12">
+   <!--<div class="col-md-12">
       <div class="panel panel-default">
          <div class="panel-heading">Open Orders
             <a href="#" data-perform="panel-collapse" data-toggle="tooltip" title="Collapse Panel" class="pull-right">
@@ -681,7 +674,7 @@
             </div>
          </div>
       </div>
-   </div>
+   </div> -->
    <!-- Market History -->
    <div class="col-md-12">
       <div class="panel panel-default">
@@ -800,69 +793,35 @@
          <table class="table table-bordered table-hover">
             <thead>
                <tr>
-                  <th>Closed Date</th>
-                  <th>Opened Date</th>
-                  <th>Type</th>
-                  <th>Bid/Ask</th>
-                  <th>Units Filled SC</th>
-                  <th>Units Total SC</th>
-                  <th>Actual Rate</th>
-                  <th>Cost/Proceeds</th>
+                  <th>Amount</th>
+                  <th>Average Price</th>
+                  <th>Date</th>
+                  <th>Trade Type</th>
+                  <th>Completed</th>
                </tr>
             </thead>
             <tbody>
+               {% for transaction in transaction_history %}
                <tr>
-                  <td>
-                     01/29/2018 06:29:22 PM
-                  </td>
-                  <td>01/29/2018 06:27:08 PM</td>
-                  <td>Limit Sell</td>
-                  <td>0.00000384</td>
-                  <td>25953.89501312</td>
-                  <td>25953.89501312</td>
-                  <td>0.00000383</td>
-                  <td>0.09941380</td>
+                  <td>{{transaction[0]}}</td>
+                  <td>{{transaction[1]}}</td>
+                  <td>{{transaction[2]}}</td>
+                  {% if transaction[3] == 1 %}
+                  <td>Buy</td>
+                  {% else %}
+                  <td>Sell</td>
+                  {% endif %}
+                  {% if transaction[4] == 1 %}
+                  <td>True</td>
+                  {% else %}
+                  <td>False</td>
+                  {% endif %}
                </tr>
-               <tr>
-                  <td>
-                     01/29/2018 06:29:22 PM
-                  </td>
-                  <td>01/29/2018 06:27:08 PM</td>
-                  <td>Limit Sell</td>
-                  <td>0.00000384</td>
-                  <td>25953.89501312</td>
-                  <td>25953.89501312</td>
-                  <td>0.00000383</td>
-                  <td>0.09941380</td>
-               </tr>
-               <tr>
-                  <td>
-                     01/29/2018 06:29:22 PM
-                  </td>
-                  <td>01/29/2018 06:27:08 PM</td>
-                  <td>Limit Buy</td>
-                  <td>0.00000384</td>
-                  <td>25953.89501312</td>
-                  <td>25953.89501312</td>
-                  <td>0.00000383</td>
-                  <td>0.09941380</td>
-               </tr>
-               <tr>
-                  <td>
-                     01/29/2018 06:29:22 PM
-                  </td>
-                  <td>01/29/2018 06:27:08 PM</td>
-                  <td>Limit Sell</td>
-                  <td>0.00000384</td>
-                  <td>25953.89501312</td>
-                  <td>25953.89501312</td>
-                  <td>0.00000383</td>
-                  <td>0.09941380</td>
-               </tr>
+               {% endfor %}
             </tbody>
          </table>
       </div>
-      <div class="panel-footer">
+      <!--<div class="panel-footer">
          <div class="row">
             <div class="col-lg-12">
                <div class="text-right">
@@ -888,7 +847,7 @@
                </div>
             </div>
          </div>
-      </div>
+      </div>-->
    </div>
 </div>
 
@@ -960,7 +919,7 @@
       </div>
    </div>
 </div>
-
+</div>
 {% endblock %}
 {% block script %}
 <script src="{{ url_for('static', filename='plugins/jquery/jquery.js') }}"></script>
@@ -994,16 +953,55 @@
 
 <script type="text/javascript" charset="utf-8">
    var socket = io();
+   trade_price = 0;
    socket.on('connect', function () {
       socket.emit('one coin', data = "{{code}}");
-      setInterval(function () { socket.emit('one coin', data = "{{code}}"); }, 1000);
+      setInterval(function () { socket.emit('one coin', data = "{{code}}"); }, 5000);
    });
 
-   socket.on('json', function (data) {
-
-      row = new Array(20).fill(new Array(5));
-      i = 19;
-      for (const [key, value] of Object.entries(data)) {
+   socket.on('coinSpec', function ({chart,coin}) {
+      for (const [key, value] of Object.entries(coin)) {
+      document.getElementById(key).children[0].setAttribute('class', value[5]); // Change state
+      trade_price = value[0];
+      document.getElementById(key).children[0].children[0].innerHTML = "&#8361;"+value[0].toLocaleString(); // trade_price
+      {% if holdings|length != 0 %}
+      document.getElementById("{{g.user[1]}}").children[3].innerHTML = parseInt((value[0]*{{holdings[0]}})).toLocaleString(); // evaluation
+      var rate = (((value[0] / {{holdings[1]}})-1)*100).toFixed(2).toLocaleString();
+      document.getElementById("{{g.user[1]}}").children[4].innerHTML = rate+"%"; // rate of return;
+      if(rate > 0){
+      document.getElementById("{{g.user[1]}}").setAttribute('class', 'RISE');
+      }
+      else if (rate < 0) {
+      document.getElementById("{{g.user[1]}}").setAttribute('class', 'FALL');
+      }
+      else{
+      document.getElementById("{{g.user[1]}}").setAttribute('class', 'EVEN');
+      }
+      {% endif %}
+      if(value[5] == 'RISE'){
+      document.getElementById(key).children[0].children[1].innerHTML = "<i class='fa fa-caret-up' style='font-size:15pt';></i>"+value[3].toLocaleString()+" +"+(value[4]*100).toFixed(2).toLocaleString()+"%"; // change_price, change_rate
+      }
+      else if(value[5] == 'FALL'){
+      document.getElementById(key).children[0].children[1].innerHTML = "<i class='fa fa-caret-down' style='font-size:15pt';></i>"+value[3].toLocaleString()+" -"+(value[4]*100).toFixed(2).toLocaleString()+"%"; // change_price, change_rate
+      }
+      if(value[1] > value[6]){
+      document.getElementById(key).children[1].children[0].setAttribute('class', 'RISE');
+      }
+      else if(value[1] < value[6]){
+      document.getElementById(key).children[1].children[0].setAttribute('class', 'FALL');
+      }
+      if(value[2] > value[6]){
+      document.getElementById(key).children[1].children[1].setAttribute('class', 'RISE');
+      }
+      else if(value[2] < value[6]){
+      document.getElementById(key).children[1].children[1].setAttribute('class', 'FALL');
+      }
+      document.getElementById(key).children[1].children[0].innerHTML = "High : "+ value[1].toLocaleString() + "&nbsp;";
+      document.getElementById(key).children[1].children[1].innerHTML = "Low : "+ value[2].toLocaleString();
+      }
+      row = new Array(40).fill(new Array(5));
+      i = 39;
+      for (const [key, value] of Object.entries(chart)) {
          var table = document.getElementById(key);
          value[0] = value[0].slice(11)
          row[i] = value
@@ -1034,6 +1032,39 @@
       }
    });
 
+
+   function buyUnitInput(totalPrice) {
+
+   document.getElementById("buyUnit").value = totalPrice / trade_price;
+   }
+   function sellUnitInput(unit) {
+   document.getElementById("sellTotal").value = unit * trade_price;
+   }
+   function placeOrder(type){
+   var uid = {{g.user[0]}}
+   var code = "{{code}}"
+   var num = 0;
+   price = 0;
+   if(type == 1){
+   price = trade_price;
+   num = document.getElementById("buyTotal").value / trade_price;
+   }
+   else{
+   num = document.getElementById("sellUnit").value;
+   price = trade_price;
+   }
+   var date = new Date();
+   var trade_type = type;
+   var completed = 1;
+   //console.log(new Date(date.getFullYear(), date.getMonth(), date.getDay(), date.getHours(), date.getMinutes(), date.getSeconds()));
+  // console.log(""+date.getFullYear()+" "+ (date.getMonth()+1) +" "+date.getDay()+" "+date.getHours()+" "+ date.getMinutes()+" "+ date.getSeconds());
+   if(price != 0 && num != 0){
+   data = [uid, code, num, price, date, trade_type, completed];
+   socket.emit('placeOrder', data = data);
+   alert("Order has been placed!");
+   location.reload();
+   }
+   }
 </script>
 
 {% endblock %}

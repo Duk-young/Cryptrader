@@ -152,6 +152,9 @@
                      <div class="user-block-info">
                         <span class="user-block-name item-text">{{ g.user[1] }}</span>
                         <span class="user-block-role"><i class="fa fa-check text-green"></i> Verified</span>
+                        {% if budget is defined %}
+                        <span class="user-block-name item-text"><i class="fa fa-krw"></i>&nbsp;{{"{:,}".format(budget|int)}}</span>
+                        {% endif %}
                         <div class="label label-primary"><i class="fa fa-chevron-down"></i> Account Info</div>
                         {% else %}
                         {% endif %}

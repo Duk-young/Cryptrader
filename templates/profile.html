@@ -8,7 +8,6 @@
          color: crimson;
          font-weight: bold;
       }
-
       .FALL {
          color: darkblue;
          font-weight: bold;
@@ -197,7 +196,7 @@
                               <div class="row row-table row-flush">
                                  <div class="col-xs-12">
                                     <h4 class="m0">Available KRW</h4>
-                                    <h4 class="User_krw"><i class="fa fa-krw">&nbsp</i>{{"{:,}".format(budget)}}</h4>
+                                    <h4 class="User_krw"><i class="fa fa-krw">&nbsp</i>{{"{:,}".format(budget|int)}}</h4>
                                  </div>
                               </div>
                            </div>
@@ -241,17 +240,17 @@
                                  <th>Average Purchase Price</th>
                                  <th>Total Purchase Price</th>
                                  <th>Trade Price</th>
-                                 <th>Valuation</th>
+                                 <th>Evaluation</th>
                                  <th>Rate of Return</th>
                               </tr>
                            </thead>
                            <tbody>
                               {% for coin in holdings %}
-                              <tr id="{{coin[0]}}">
+                              <tr id="{{coin[0]}}" style="cursor:pointer;" onClick="location.href='./prices/{{coin[0]}}'">
                                  <td>{{coin[0]}}</td>
                                  <td>{{coin[1]}}</td>
-                                 <td>{{coin[2]}}</td>
-                                 <td>&#8361;{{coin[3]}}</td>
+                                 <td>{{coin[2]}}&nbsp;{{coin[0].split("KRW-")[1]}}</td>
+                                 <td>&#8361;{{coin[3]|int}}</td>
                                  <td>&#8361;{{(coin[2]*coin[3])|int}}</td>
                                  <td></td>
                                  <td></td>
