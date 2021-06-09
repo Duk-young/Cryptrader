@@ -15,7 +15,7 @@ cur.execute('''CREATE TABLE Coins
 
 cur.execute('''DROP TABLE IF EXISTS Coins_category''')
 cur.execute('''CREATE TABLE Coins_category
-               (name TEXT UNIQUE, category TEXT, PRIMARY KEY (name), FOREIGN KEY (name) REFERENCES Coins)''')
+               (code TEXT UNIQUE, category TEXT, PRIMARY KEY (code), FOREIGN KEY (code) REFERENCES Coins)''')
 
 cur.execute('''DROP TABLE IF EXISTS Coins_info''')
 cur.execute('''CREATE TABLE Coins_info
@@ -23,15 +23,19 @@ cur.execute('''CREATE TABLE Coins_info
 
 cur.execute('''DROP TABLE IF EXISTS User_login''')
 cur.execute('''CREATE TABLE User_login
-               (uid INTEGER UNIQUE, uname TEXT NOT NULL, password TEXT NOT NULL, PRIMARY KEY (uid))''')
+               (uid INTEGER UNIQUE, uname TEXT NOT NULL, password TEXT NOT NULL, email TEXT, PRIMARY KEY (uid))''')
 
-cur.execute('''DROP TABLE IF EXISTS User_info''')
-cur.execute('''CREATE TABLE User_info
+cur.execute('''DROP TABLE IF EXISTS User_budget''')
+cur.execute('''CREATE TABLE User_budget
                (uid INTEGER UNIQUE, budget INTEGER, PRIMARY KEY (uid), FOREIGN KEY (uid) REFERENCES User_login)''')
 
-cur.execute('''DROP TABLE IF EXISTS User_interests''')
-cur.execute('''CREATE TABLE User_interests
-               (uid INTEGER, code TEXT, PRIMARY KEY (uid,code), FOREIGN KEY (uid) REFERENCES User_login, FOREIGN KEY (code) REFERENCES Coins)''')
+cur.execute('''DROP TABLE IF EXISTS User_favorites''')
+cur.execute('''CREATE TABLE User_favorites
+               (uid INTEGER, code TEXT, subscribed INTEGER, PRIMARY KEY (uid,code), FOREIGN KEY (uid) REFERENCES User_login, FOREIGN KEY (code) REFERENCES Coins)''')
+
+cur.execute('''DROP TABLE IF EXISTS User_verified''')
+cur.execute('''CREATE TABLE User_verified
+               (uname TEXT, email TEXT, verified INTEGER, PRIMARY KEY (uname), FOREIGN KEY (uname, email) REFERENCES User_login)''')
 
 cur.execute('''DROP TABLE IF EXISTS User_holding''')
 cur.execute('''CREATE TABLE User_holding
@@ -67,25 +71,27 @@ cur.execute('''CREATE TABLE Collaborates_with
 # Triggers
 cur.execute('''CREATE TRIGGER new_user AFTER INSERT ON User_login
 BEGIN
- INSERT INTO User_info VALUES (new.uid, 10000000);
+ INSERT INTO User_budget VALUES (new.uid, 10000000);
+ INSERT INTO User_verified VALUES (new.uname, new.email, 1);
  END;''')
 
 cur.execute('''CREATE TRIGGER check_transaction BEFORE INSERT ON Transaction_history
-WHEN (new.trade_type = 1) AND (SELECT budget FROM User_info WHERE uid = new.uid) < (new.num * new.price)
+WHEN (new.trade_type = 1) AND (SELECT budget FROM User_budget WHERE uid = new.uid) < (new.num * new.price)
 BEGIN
      SELECT RAISE(FAIL, "Not enough budget");
 END;''')
-cur.execute('''CREATE TRIGGER check_holding AFTER INSERT ON Transaction_history
-WHEN new.completed = 1 AND (SELECT avg_price*num FROM User_holding WHERE uid = new.uid AND code = new.code) < 5
+
+cur.execute('''CREATE TRIGGER check_holding2 AFTER UPDATE ON User_holding
+WHEN new.avg_price*new.num < 5
 BEGIN
      DELETE FROM User_holding WHERE uid = new.uid AND code = new.code;
 END;''')
 
 cur.execute('''CREATE TRIGGER insert_transaction1 AFTER INSERT ON Transaction_history
-WHEN new.code NOT IN (SELECT code FROM User_holding WHERE uid = new.uid) AND new.completed = 1
+WHEN new.code NOT IN (SELECT code FROM User_holding WHERE uid = new.uid AND code = new.code) AND new.completed = 1 AND new.trade_type = 1
 BEGIN
     INSERT INTO User_holding (uid,code,num,avg_price) VALUES (new.uid, new.code, new.num, new.price);
-    UPDATE User_info
+    UPDATE User_budget
     SET budget = CASE WHEN new.trade_type > 0 THEN (budget - (new.num*new.price))
     ELSE (budget + (new.num*new.price)) END
     WHERE uid = new.uid;
@@ -100,13 +106,41 @@ BEGIN
     avg_price = CASE WHEN new.trade_type > 0 THEN (((num*avg_price) + (new.num*new.price))/(num+new.num))
     ELSE (avg_price) END
     WHERE uid = new.uid AND code = new.code;
-    UPDATE User_info
+    UPDATE User_budget
     SET budget = CASE WHEN new.trade_type > 0 THEN (budget - (new.num*new.price))
     ELSE (budget + (new.num*new.price)) END
     WHERE uid = new.uid;
 END;''')
 
+cur.execute('''CREATE TRIGGER insert_PendingTransaction1 AFTER INSERT ON Transaction_history
+WHEN new.trade_type = 1 AND new.completed = 0
+BEGIN
+    UPDATE User_budget
+    SET budget = CASE WHEN new.trade_type > 0 THEN (budget - (new.num*new.price))
+    ELSE (budget + (new.num*new.price)) END
+    WHERE uid = new.uid;
+END;''')
 
+cur.execute('''CREATE TRIGGER update_transaction1 BEFORE UPDATE ON Transaction_history
+WHEN new.code IN (SELECT code FROM User_holding WHERE uid = new.uid) AND new.completed = 1
+BEGIN
+    UPDATE User_holding 
+    SET num = CASE WHEN new.trade_type > 0 THEN (num + new.num)
+    ELSE (num - new.num) END,
+    avg_price = CASE WHEN new.trade_type > 0 THEN (((num*avg_price) + (new.num*new.price))/(num+new.num))
+    ELSE (avg_price) END
+    WHERE uid = new.uid AND code = new.code;
+    UPDATE User_budget
+    SET budget = CASE WHEN new.trade_type > 0 THEN (budget)
+    ELSE (budget + (new.num*new.price)) END
+    WHERE uid = new.uid;
+END;''')
+
+cur.execute('''CREATE TRIGGER update_transaction2 AFTER UPDATE ON Transaction_history
+WHEN new.code NOT IN (SELECT code FROM User_holding WHERE uid = new.uid) AND new.completed = 1 AND new.trade_type = 1
+BEGIN
+    INSERT INTO User_holding (uid,code,num,avg_price) VALUES (new.uid, new.code, new.num, new.price);
+END;''')
 # Insert rows of data
 
 # Coins
@@ -228,32 +262,32 @@ cur.execute("INSERT INTO Coins VALUES ('MovieBloc','KRW-MBL')")
 cur.execute("INSERT INTO Coins VALUES ('BitTorrent','KRW-BTT')")
 cur.execute("INSERT INTO Coins VALUES ('Icon','KRW-ICX')")
 
-cur.execute("INSERT INTO Coins_category VALUES ('Bitcoin', 'Major')")
-cur.execute("INSERT INTO Coins_category VALUES ('Ethereum', 'Major')")
-cur.execute("INSERT INTO Coins_category VALUES ('Ripple', 'Major')")
-cur.execute("INSERT INTO Coins_category VALUES ('Ada', 'Major')")
-cur.execute("INSERT INTO Coins_category VALUES ('Polkadot', 'Major')")
-cur.execute("INSERT INTO Coins_category VALUES ('Litecoin', 'Major')")
-cur.execute("INSERT INTO Coins_category VALUES ('Bitcoin Cash', 'Major')")
-cur.execute("INSERT INTO Coins_category VALUES ('Lumen', 'Major')")
-cur.execute("INSERT INTO Coins_category VALUES ('NEM', 'Major')")
-cur.execute("INSERT INTO Coins_category VALUES ('VeChain', 'Semi-Major')")
-cur.execute("INSERT INTO Coins_category VALUES ('Theta Token', 'Semi-Major')")
-cur.execute("INSERT INTO Coins_category VALUES ('EOS', 'Semi-Major')")
-cur.execute("INSERT INTO Coins_category VALUES ('TRON', 'Semi-Major')")
-cur.execute("INSERT INTO Coins_category VALUES ('NEO', 'Semi-Major')")
-cur.execute("INSERT INTO Coins_category VALUES ('Bitcoin SV', 'Semi-Major')")
-cur.execute("INSERT INTO Coins_category VALUES ('Crypto.com Chain', 'Semi-Major')")
-cur.execute("INSERT INTO Coins_category VALUES ('Tezos', 'Semi-Major')")
-cur.execute("INSERT INTO Coins_category VALUES ('FirmaChain', 'Minor')")
-cur.execute("INSERT INTO Coins_category VALUES ('SOMESING', 'Minor')")
-cur.execute("INSERT INTO Coins_category VALUES ('TON', 'Minor')")
-cur.execute("INSERT INTO Coins_category VALUES ('HUNT', 'Minor')")
-cur.execute("INSERT INTO Coins_category VALUES ('Observer', 'Minor')")
-cur.execute("INSERT INTO Coins_category VALUES ('DMarket', 'Minor')")
-cur.execute("INSERT INTO Coins_category VALUES ('Aergo', 'Minor')")
-cur.execute("INSERT INTO Coins_category VALUES ('MovieBloc', 'Minor')")
-cur.execute("INSERT INTO Coins_category VALUES ('Endor', 'Minor')")
+cur.execute("INSERT INTO Coins_category VALUES ('KRW-BTC', 'Major')")
+cur.execute("INSERT INTO Coins_category VALUES ('KRW-ETH', 'Major')")
+cur.execute("INSERT INTO Coins_category VALUES ('KRW-XRP', 'Major')")
+cur.execute("INSERT INTO Coins_category VALUES ('KRW-ADA', 'Major')")
+cur.execute("INSERT INTO Coins_category VALUES ('KRW-DOT', 'Major')")
+cur.execute("INSERT INTO Coins_category VALUES ('KRW-LTC', 'Major')")
+cur.execute("INSERT INTO Coins_category VALUES ('KRW-BCH', 'Major')")
+cur.execute("INSERT INTO Coins_category VALUES ('KRW-XLM', 'Major')")
+cur.execute("INSERT INTO Coins_category VALUES ('KRW-XEM', 'Major')")
+cur.execute("INSERT INTO Coins_category VALUES ('KRW-VET', 'Semi-Major')")
+cur.execute("INSERT INTO Coins_category VALUES ('KRW-THETA', 'Semi-Major')")
+cur.execute("INSERT INTO Coins_category VALUES ('KRW-EOS', 'Semi-Major')")
+cur.execute("INSERT INTO Coins_category VALUES ('KRW-TRX', 'Semi-Major')")
+cur.execute("INSERT INTO Coins_category VALUES ('KRW-NEO', 'Semi-Major')")
+cur.execute("INSERT INTO Coins_category VALUES ('KRW-BSV', 'Semi-Major')")
+cur.execute("INSERT INTO Coins_category VALUES ('KRW-CRO', 'Semi-Major')")
+cur.execute("INSERT INTO Coins_category VALUES ('KRW-XTZ', 'Semi-Major')")
+cur.execute("INSERT INTO Coins_category VALUES ('KRW-FCT2', 'Minor')")
+cur.execute("INSERT INTO Coins_category VALUES ('KRW-SSX', 'Minor')")
+cur.execute("INSERT INTO Coins_category VALUES ('KRW-TON', 'Minor')")
+cur.execute("INSERT INTO Coins_category VALUES ('KRW-HUNT', 'Minor')")
+cur.execute("INSERT INTO Coins_category VALUES ('KRW-OBSR', 'Minor')")
+cur.execute("INSERT INTO Coins_category VALUES ('KRW-DMT', 'Minor')")
+cur.execute("INSERT INTO Coins_category VALUES ('KRW-AERGO', 'Minor')")
+cur.execute("INSERT INTO Coins_category VALUES ('KRW-MBL', 'Minor')")
+cur.execute("INSERT INTO Coins_category VALUES ('KRW-EDR', 'Minor')")
 
 cur.execute("INSERT INTO Coins_info VALUES ('Bitcoin', 712455673236488, 1, 'Satoshi Nakamoto')")
 cur.execute("INSERT INTO Coins_info VALUES ('Ethereum', 293267100926272, 1, 'Vitalik Buterin')")
@@ -268,27 +302,8 @@ cur.execute("INSERT INTO Coins_info VALUES ('Ethereum Classic', 8129642261641, 1
 cur.execute("INSERT INTO Coins_info VALUES ('Theta Token', 6905244024759, 1, 'Mitch Liu')")
 cur.execute("INSERT INTO Coins_info VALUES ('VeChain', 6866625937215, 1, 'Sunny Lu')")
 
-cur.execute("INSERT INTO User_login VALUES ( 1,'deom', 'test')")
-cur.execute("INSERT INTO User_login VALUES ( 2,'triggertest', 'test')")
-cur.execute("INSERT INTO User_login VALUES ( 3,'Nielsen', 'test')")
-cur.execute("INSERT INTO User_login VALUES ( 4,'Lindsay', 'test')")
-cur.execute("INSERT INTO User_login VALUES ( 5,'Britney', 'test')")
-cur.execute("INSERT INTO User_login VALUES ( 6,'Ravinder', 'test')")
-cur.execute("INSERT INTO User_login VALUES ( 7,'Roosevelt', 'test')")
-cur.execute("INSERT INTO User_login VALUES ( 8,'Simmons', 'test')")
-cur.execute("INSERT INTO User_login VALUES ( 9,'Mercado', 'test')")
-cur.execute("INSERT INTO User_login VALUES ( 10,'Georgiana', 'test')")
-cur.execute("INSERT INTO User_login VALUES ( 11,'Tonisha ', 'test')")
-cur.execute("INSERT INTO User_login VALUES ( 12,'Mclellan', 'test')")
-cur.execute("INSERT INTO User_login VALUES ( 13,'Mcculloch', 'test')")
-cur.execute("INSERT INTO User_login VALUES ( 14,'Sweeney', 'test')")
-cur.execute("INSERT INTO User_login VALUES ( 15,'Benitez', 'test')")
-cur.execute("INSERT INTO User_login VALUES ( 16,'Mcgowan', 'test')")
-cur.execute("INSERT INTO User_login VALUES ( 17,'Calderon', 'test')")
-cur.execute("INSERT INTO User_login VALUES ( 18,'Barajas', 'test')")
-cur.execute("INSERT INTO User_login VALUES ( 19,'Kristina', 'test')")
-cur.execute("INSERT INTO User_login VALUES ( 20,'Carrillo', 'test')")
-
+cur.execute("INSERT INTO User_login VALUES (1,'deom', 'test','dukyoung.eom@stonybrook.edu')")
+cur.execute("INSERT INTO User_login VALUES (2,'triggertest', 'test', 'test@test')")
 
 
 
@@ -296,24 +311,15 @@ cur.execute("INSERT INTO User_holding VALUES ( 1, 'KRW-MLK', 828.73502754, 2516)
 cur.execute("INSERT INTO User_holding VALUES ( 1, 'KRW-CRO', 1269.77360992, 306)")
 cur.execute("INSERT INTO User_holding VALUES ( 2, 'KRW-NEO', 63.36231144, 68780)")
 cur.execute("INSERT INTO User_holding VALUES ( 2, 'KRW-WAVES', 142.72947923, 16135)")
-cur.execute("INSERT INTO User_holding VALUES ( 3, 'KRW-GAS', 48.39473823, 11441)")
-cur.execute("INSERT INTO User_holding VALUES ( 3, 'KRW-QTUM', 138.83649204, 14983)")
-cur.execute("INSERT INTO User_holding VALUES ( 4, 'KRW-LSK', 569.37485920, 4038)")
-cur.execute("INSERT INTO User_holding VALUES ( 4, 'KRW-EOS', 34.82648301, 8367)")
-cur.execute("INSERT INTO User_holding VALUES ( 4, 'KRW-BTC', 0.00012412, 42748392)")
-cur.execute("INSERT INTO User_holding VALUES ( 5, 'KRW-ETC', 73.93829420, 83082)")
-cur.execute("INSERT INTO User_holding VALUES ( 5, 'KRW-BTC', 0.00003245, 42748392)")
-cur.execute("INSERT INTO User_holding VALUES ( 6, 'KRW-STRK', 45.03948329, 52092)")
-cur.execute("INSERT INTO User_holding VALUES ( 6, 'KRW-LINK', 23.93874623, 30483)")
-cur.execute("INSERT INTO User_holding VALUES ( 7, 'KRW-ARK', 142.98372938, 1543)")
-cur.execute("INSERT INTO User_holding VALUES ( 7, 'KRW-IOTA', 74.47382039, 1503)")
-cur.execute("INSERT INTO User_holding VALUES ( 7, 'KRW-PCI', 34.92839543, 1305)")
-cur.execute("INSERT INTO User_holding VALUES ( 8, 'KRW-ETC', 34.02789382, 83082)")
-cur.execute("INSERT INTO User_holding VALUES ( 8, 'KRW-BTC', 0.00045136, 42748392)")
-cur.execute("INSERT INTO User_holding VALUES ( 9, 'KRW-ADA',302.93872839, 1734)")
-cur.execute("INSERT INTO User_holding VALUES ( 9, 'KRW-ENJ', 103.87398423, 1603)")
-cur.execute("INSERT INTO User_holding VALUES ( 10, 'KRW-MLK', 452.98472938, 2516)")
-cur.execute("INSERT INTO User_holding VALUES ( 10, 'KRW-DOGE', 290.33890935, 50 )")
+
+
+cur.execute("INSERT INTO Company VALUES ( 'YANOLJA', 'Yanolja Company')")
+cur.execute("INSERT INTO Company_info VALUES ( 'Yanolja Company', 'Sujin Lee', 'Seoul')")
+cur.execute("INSERT INTO Collaborates_with VALUES ('YANOLJA','KRW-MLK')")
+
+cur.execute("INSERT INTO Company VALUES ( 'YANOLJA2', 'Yanolja Company2')")
+cur.execute("INSERT INTO Company_info VALUES ( 'Yanolja Company2', 'Sujin Lee', 'Seoul')")
+cur.execute("INSERT INTO Collaborates_with VALUES ('YANOLJA2','KRW-MLK')")
 
 #cur.execute("INSERT INTO Transaction_history VALUES (2, 'KRW-BTC', 1, 35000000, '2021-06-01', 1, 1)")
 #cur.execute("INSERT INTO Transaction_history VALUES (2, 'KRW-BTC', 1, 25000000, '2021-06-011', 1, 1)")

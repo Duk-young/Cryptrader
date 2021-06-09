@@ -59,6 +59,12 @@ def close_connection(exception):
         db.close()
 
 # query function
+def commit_db(query,list):
+    conn = get_db()
+    cur = conn.cursor()
+    cur.execute(query,list)
+    conn.commit()
+    cur.close()
 def query_db(query, args=(), one=False):
     cur = get_db().execute(query, args)
     rv = cur.fetchall()
@@ -70,6 +76,36 @@ def query_db(query, args=(), one=False):
       #  rv.insert(0, tnames)
     cur.close()
     return (rv[0] if rv else None) if one else rv
+def pendingOrdersCheck(uid):
+    if uid is None:
+        return None
+    pendings = query_db('SELECT * FROM Transaction_history WHERE uid = ? AND completed = 0', [uid])
+    if len(pendings) == 0:
+        return None
+    url = "https://api.upbit.com/v1/ticker"
+    markets = ""
+    for coin in pendings:
+        if coin[1] not in markets:
+            markets += coin[1]
+        if pendings.index(coin) != len(pendings) - 1:
+            markets += ','
+    print(markets)
+    querystring = {"markets": markets}
+    headers = {"Accept": "application/json"}
+    response = requests.request("GET", url, headers=headers, params=querystring)
+    #url = "https://api.upbit.com/v1/market/all"
+    print(response)
+    for market in response.json():
+        print(market["market"],'\'s Real Time Price: ', market["trade_price"])
+        for order in pendings:
+            if order[1] == market["market"] and order[5] == 1 and market["trade_price"] <= order[3]:
+                commit_db('UPDATE Transaction_history SET completed = 1 WHERE uid = ? AND code = ? AND DATE = ?', [order[0], order[1], order[4]])
+                flash("Buy " + market["market"], 'order_completed')
+            if order[1] == market["market"] and order[5] == 0 and market["trade_price"] >= order[3]:
+                commit_db('UPDATE Transaction_history SET completed = 1 WHERE uid = ? AND code = ? AND DATE = ?', [order[0], order[1], order[4]])
+                flash("Sell " + market["market"], 'order_completed')
+    print("Pending orders are being checked")
+
 def realtime_holdings(holdings):
     if len(holdings) == 0:
         return None
@@ -138,8 +174,8 @@ def realtime_candle(code):
 # Invoke this one with http://127.0.0.1:5000
 @app.before_request
 def check_session():
-    if 'user_info' in session:
-        user = session['user_info']
+    if 'User_budget' in session:
+        user = session['User_budget']
         g.user = user
     else:
         g.user = None
@@ -149,22 +185,18 @@ def check_session():
 @app.route('/',methods=['GET','POST'])
 def mainPage():
     if request.method == 'POST':
-        session.pop('user_info', None)
+        session.pop('User_budget', None)
         if "new_uname" in request.form:
             uname = request.form['new_uname']
             password = request.form['password']
             password_repeat = request.form['password_repeat']
+            email = request.form['email']
             if password==password_repeat :
                 user_check = query_db('SELECT uid FROM User_login WHERE uname = ?', [uname])
                 if len(user_check) == 0:
                     uid = query_db('SELECT COUNT(*) FROM User_login')[0][0] + 1
                     print("uid: "+ str(uid))
-                    conn = get_db()
-                    cur = conn.cursor()
-                    cur.execute('INSERT INTO User_login (uid, uname, password) VALUES (?, ?, ?)', [uid, uname, password])
-              #      cur.execute('INSERT INTO User_info (uid, budget) VALUES (?, ?)', [uid, 10000000])
-                    conn.commit()
-                    cur.close()
+                    commit_db('INSERT INTO User_login (uid, uname, password, email) VALUES (?, ?, ?, ?)', [uid, uname, password, email])
                     flash("Successfully registered! Please sign in", 'register_success')
                 else:
                     flash("Username already exists. Please try with other user name", 'register_fail')
@@ -173,9 +205,9 @@ def mainPage():
         else:
             uname = request.form['uname']
             password = request.form['password']
-            user = query_db('SELECT uid, uname, budget FROM User_login NATURAL JOIN User_info WHERE uname = ? AND password = ?', [uname, password])
+            user = query_db('SELECT uid, uname, budget FROM User_login NATURAL JOIN User_budget WHERE uname = ? AND password = ?', [uname, password])
             if len(user) != 0:
-                session['user_info'] = user[0]
+                session['User_budget'] = user[0]
                 return redirect(url_for('prices'))
             flash("Invalid username or password", 'sign_in')
     return render_template('landing.html')
@@ -188,14 +220,14 @@ def prices():
     coinList = query_db('SELECT * FROM Coins')
     bookmarks = None;
     if g.user is not None:
-        bookmarks = query_db('SELECT code FROM User_interests WHERE uid = ?', [g.user[0]])
+        bookmarks = query_db('SELECT code FROM User_favorites WHERE uid = ?', [g.user[0]])
     return render_template('prices.html', list=coinList, bookmarks=bookmarks)
 
-@app.route('/bookmarks', methods=['POST','GET'])
+@app.route('/favorites', methods=['POST','GET'])
 def bookmarkPage():
     if g.user is not None:
-        coinList = query_db('SELECT name, code FROM User_interests NATURAL JOIN Coins WHERE uid = ?', [g.user[0]])
-        bookmarks = query_db('SELECT code FROM User_interests WHERE uid = ?', [g.user[0]])
+        coinList = query_db('SELECT name, code FROM User_favorites NATURAL JOIN Coins WHERE uid = ?', [g.user[0]])
+        bookmarks = query_db('SELECT code FROM User_favorites WHERE uid = ?', [g.user[0]])
         return render_template('prices.html', list=coinList, bookmarks=bookmarks)
     return redirect('/')
 
@@ -213,7 +245,7 @@ def coinSpec(code):
     budget = None
     holdings = None
     if g.user is not None:
-        budget = query_db('SELECT budget FROM User_info WHERE uid = ? ', [g.user[0]])[0][0]
+        budget = query_db('SELECT budget FROM User_budget WHERE uid = ? ', [g.user[0]])[0][0]
         holdings = query_db('SELECT num, avg_price FROM User_holding WHERE uid = ? AND code = ?', [g.user[0],code])
     print ("holding=" + str(holdings))
     if len(holdings) != 0:
@@ -226,19 +258,20 @@ def coinSpec(code):
     print(coinSpec)
     categories = query_db('SELECT category FROM Coins NATURAL JOIN Coins_category WHERE code = ?', [code])
     print(categories)
-    organization = query_db('SELECT * FROM Organization, Organization_info, Administrated_by WHERE Administrated_by.code = ?'
-                        'AND Administrated_by.oid = Organization.oid AND Organization.oname = Organization_info.oname', [code])
-    print(organization)
+    organization = query_db('SELECT * FROM Organization NATURAL JOIN Organization_info NATURAL JOIN Administrated_by WHERE code = ?', [code])
+    print('org = '+ str(organization))
+    companies = query_db('SELECT * FROM Company NATURAL JOIN Company_info NATURAL JOIN Collaborates_with WHERE code = ?', [code])
+    print('comp = '+ str(companies))
     transaction_history = query_db('SELECT num, price, date, trade_type, completed FROM Transaction_history WHERE uid = ? AND code = ?', [g.user[0],code])
     print(transaction_history)
-    return render_template('chart.html', code=code, coinSpec = coinSpec, organization = organization, categories = categories, budget = budget, holdings = holdings, transaction_history = transaction_history)
+    return render_template('chart.html', code=code, coinSpec = coinSpec, companies = companies, organization = organization, categories = categories, budget = budget, holdings = holdings, transaction_history = transaction_history)
 
 @app.route('/profile')
 def profile():
     if g.user is None:
         flash("Sign in required", 'sign_in')
         return redirect('/')
-    budget = query_db('SELECT budget FROM User_info WHERE uid = ?', [g.user[0]])[0][0]
+    budget = query_db('SELECT budget FROM User_budget WHERE uid = ?', [g.user[0]])[0][0]
     holdings = query_db('SELECT code, num, avg_price FROM User_holding WHERE uid = ?', [g.user[0]])
     print(holdings)
     names = []
@@ -252,7 +285,7 @@ def profile():
     return render_template('profile.html', budget=budget, holdings=holdings)
 @app.route('/signout')
 def signout():
-    session.pop('user_info', None)
+    session.pop('User_budget', None)
     g.user = None
     return redirect('/')
 
@@ -266,6 +299,13 @@ def handle_my_custom_event(sid):
 def handle_my_holdings(holdings):
     #print('[%s]' % ', '.join(map(str, holdings)))
     socketio.emit('json', realtime_holdings(holdings))
+
+@socketio.on('order check')
+def handle_order_check(uid):
+    print('uid = '+ str(uid))
+    #print('[%s]' % ', '.join(map(str, holdings)))
+    pendingOrdersCheck(uid)
+
 
 @socketio.on('one coin')
 def handle_one_coin(code):
@@ -284,33 +324,21 @@ def update(json):
 
 @socketio.on('deleteBookmark')
 def deleteBookmark(uid, code):
-    duplicate_check = query_db('SELECT * FROM User_interests WHERE uid = ? AND code = ?', [uid,code])
+    duplicate_check = query_db('SELECT * FROM User_favorites WHERE uid = ? AND code = ?', [uid,code])
     if len(duplicate_check) != 0:
         print(str(uid) + code)
-        conn = get_db()
-        cur = conn.cursor()
-        cur.execute('DELETE FROM User_interests WHERE uid = ? AND code = ?', [uid, code])
-        conn.commit()
-        cur.close()
+        commit_db('DELETE FROM User_favorites WHERE uid = ? AND code = ?', [uid, code])
 
 @socketio.on('Bookmark')
 def Bookmark(uid, code):
-    duplicate_check = query_db('SELECT * FROM User_interests WHERE uid = ? AND code = ?', [uid, code])
+    duplicate_check = query_db('SELECT * FROM User_favorites WHERE uid = ? AND code = ?', [uid, code])
     if len(duplicate_check) == 0:
         print(str(uid) + code)
-        conn = get_db()
-        cur = conn.cursor()
-        cur.execute('INSERT INTO User_interests (uid, code) VALUES (?, ?)', [uid, code])
-        conn.commit()
-        cur.close()
+        commit_db('INSERT INTO User_favorites (uid, code, subscribed) VALUES (?, ?, 0)', [uid, code])
 
 @socketio.on('placeOrder')
 def placeOrder(data):
-        conn = get_db()
-        cur = conn.cursor()
-        cur.execute('INSERT INTO Transaction_history (uid, code, num, price, date, trade_type, completed) VALUES (?, ?, ?, ?, ?, ?, ?)', [data[0],data[1],data[2],data[3],strftime("%Y-%m-%d %H:%M:%S"),data[5],data[6]])
-        conn.commit()
-        cur.close()
+        commit_db('INSERT INTO Transaction_history (uid, code, num, price, date, trade_type, completed) VALUES (?, ?, ?, ?, ?, ?, ?)', [data[0],data[1],data[2],data[3],strftime("%Y-%m-%d %H:%M:%S"),data[5],data[6]])
 
 
 class ThreadCount(object):

@@ -22,6 +22,8 @@
    margin: 0;
    }
       .tag{
+          margin-right : 2px;
+          margin-left : 2px;
           border: 2px solid orange;
           background: orange;
           border-radius: 5px;
@@ -47,6 +49,13 @@
                         {% for tag in categories %}
                         <p class="tag">{{tag[0]}}</p>
                         {% endfor %}
+                        {% if coinSpec|length > 2 %}
+                        {% if coinSpec[3] == 1 %}
+                        <p class="tag">Globally Available</p>
+                        {% else %}
+                        <p class="tag">Only for Korean Market</p>
+                        {% endif %}
+                        {% endif %}
                      </div>
                      <div id="{{code}}">
                      <div class="RISE" style="display: flex">
@@ -74,45 +83,25 @@
       <div class="panel panel-default">
          <div class="panel-heading">
             <div class="pull-right"><i class="fa fa-bullhorn"></i></div>
-            <div class="panel-title">Upcoming News</div>
+            <div class="panel-title">About This Cryptocurrency</div>
          </div>
          <div class="list-group">
+            {% if coinSpec|length > 2 %}
             <a href="#" class="list-group-item">
                <div class="media">
                   <div class="media-body">
-                     <small class="pull-right">2h</small>
-                     <strong class="media-heading text-primary">James</strong>
-                     <p><small>Posted by James@example</small></p>
-                     <p class="mb-sm">
-                        <small>We are adding iota coins read full notice example.com/adding-iota</small>
-                     </p>
+                     <strong class="media-heading text-primary">Founder : {{coinSpec[4]}}</strong>
                   </div>
                </div>
             </a>
             <a href="#" class="list-group-item">
                <div class="media">
                   <div class="media-body">
-                     <small class="pull-right">2h</small>
-                     <strong class="media-heading text-primary">Jimmy</strong>
-                     <p><small>Posted by Jimmy@example</small></p>
-                     <p class="mb-sm">
-                        <small>We have scheduled update for BTC on 03/04/2018 example.com/btc-update</small>
-                     </p>
+                     <strong class="media-heading text-primary">Market Cap : &#8361;{{"{:,}".format(coinSpec[2]|int)}}</strong>
                   </div>
                </div>
             </a>
-            <a href="#" class="list-group-item">
-               <div class="media">
-                  <div class="media-body">
-                     <small class="pull-right">2h</small>
-                     <strong class="media-heading text-primary">Franky</strong>
-                     <p><small>Posted by Franky@example</small></p>
-                     <p class="mb-sm">
-                        <small>Vote for your favorite coin to be added example.com/vote-coin</small>
-                     </p>
-                  </div>
-               </div>
-            </a>
+            {% endif %}
          </div>
          <div class="panel-footer clearfix">
             <a href="#" class="pull-left">
@@ -134,8 +123,8 @@
                            <thead>
                               <tr>
                                  <th>Amount</th>
-                                 <th>Average Purchase Price</th>
-                                 <th>Total Purchase Price</th>
+                                 <th>Average Price</th>
+                                 <th>Buy</th>
                                  <th>Evaluation</th>
                                  <th>Rate of Return</th>
                               </tr>
@@ -162,10 +151,20 @@
             </a>
          </div>
          <div class="pannel panel-body">
+            <div style="text-align: center">
+             <input type="radio" id="buyMarketOrder" name="BuyOrderType" value="market" onclick="orderType('buyMarketOrder');" checked>
+             <label for="buyMarketOrder" style="margin-right: 3%;">Market Order</label>
+             <input type="radio" id="buyPendingOrder" name="BuyOrderType" value="pending" onclick="orderType('buyPendingOrder');">
+             <label for="buyPendingOrder">Limit Order</label>
+            </div>
             <label class="col-sm-2 control-label m-t-9">Total</label>
             <div class="input-group col-sm-10 m-b">
-               <span class="input-group-addon btn-primary group-btn-hover" onclick="document.getElementById('buyTotal').value = {{budget|int}}; buyUnitInput(document.getElementById('buyTotal').value);"><i class="fa fa-angle-double-up"></i> Max</span>
-               <input id="buyTotal" type="number" placeholder="0" class="form-control text-right" step="10000" max="{{budget|int}}" min="0" oninput="buyUnitInput(this.value)" onKeyUp="if(this.value>{{budget}}){this.value='{{budget|int}}';}else if(this.value<0){this.value='0';}">
+               <span class="input-group-addon btn-primary group-btn-hover" onclick="document.getElementById('buyTotal').value = {{(budget|int)-10}}; buyUnitInput(document.getElementById('buyTotal').value);"><i class="fa fa-angle-double-up"></i> Max</span>
+               <input id="buyTotal" type="number" placeholder="0" class="form-control text-right" step="10000" max="{{(budget|int)-10}}" min="0" oninput="buyUnitInput()" onKeyUp="if(this.value>{{budget}}){this.value='{{budget|int}}';}else if(this.value<0){this.value='0';}">
+            </div>
+            <label class="col-sm-2 control-label m-t-9">Average Price</label>
+            <div class="input-group col-sm-10 m-b">
+               <input id="buyAverage" type="number" placeholder="0" class="form-control text-right" min="0" oninput="buyUnitInput()" disabled>
             </div>
             <div class="m-t-9">
                <label class="col-sm-2 control-label m-t-9">Units</label>
@@ -188,15 +187,25 @@
             </a>
          </div>
          <div class="pannel panel-body">
+           <div style="text-align: center">
+             <input type="radio" id="sellMarketOrder" name="sellOrderType" value="market" onclick="orderType('sellMarketOrder');" checked>
+             <label for="sellMarketOrder" style="margin-right: 3%;">Market Order</label>
+             <input type="radio" id="sellPendingOrder" name="sellOrderType" value="pending" onclick="orderType('sellPendingOrder');">
+             <label for="sellPendingOrder">Limit Order</label>
+            </div>
             <label class="col-sm-2 control-label m-t-9">Units</label>
             <div class="input-group col-sm-10 m-b">
                {% if holdings|length != 0 %}
                <span class="input-group-addon btn-primary group-btn-hover" onclick="document.getElementById('sellUnit').value = {{holdings[0]}}; sellUnitInput(document.getElementById('sellUnit').value)"><i class="fa fa-angle-double-up"></i> Max</span>
-               <input id="sellUnit" type="number" placeholder="0" class="form-control text-right" step="any" max="{{holdings[0]}}" min="0" oninput="sellUnitInput(this.value)" onKeyUp="if(this.value>{{holdings[0]}}){this.value='{{holdings[0]}}';}else if(this.value<0){this.value='0';}">
+               <input id="sellUnit" type="number" placeholder="0" class="form-control text-right" step="any" max="{{holdings[0]}}" min="0" oninput="sellUnitInput()" onKeyUp="if(this.value>{{holdings[0]}}){this.value='{{holdings[0]}}';}else if(this.value<0){this.value='0';}">
                {% else %}
                <span class="input-group-addon btn-primary group-btn-hover" ><i class="fa fa-angle-double-up"></i> Max</span>
-               <input id="sellUnit" type="number" placeholder="0" class="form-control text-right" step="any"  min="0" oninput="sellUnitInput(this.value)">
+               <input id="sellUnit" type="number" placeholder="0" class="form-control text-right" step="any"  min="0" oninput="sellUnitInput()">
                {% endif %}
+            </div>
+            <label class="col-sm-2 control-label m-t-9">Average Price</label>
+            <div class="input-group col-sm-10 m-b">
+               <input id="sellAverage" type="number" placeholder="0" class="form-control text-right" step="any" min="0" oninput="sellUnitInput()" disabled>
             </div>
             <div class="m-t-9">
                <label class="col-sm-2 control-label m-t-9">Total</label>
@@ -853,71 +862,28 @@
 
  <!-- Name Card -->
  <div class="row">
+    {% for company in companies %}
    <div class="col-lg-3 col-sm-6">
       <div data-toggle="play-animation" data-play="fadeInDown" data-offset="0" data-delay="100"
          class="panel widget">
          <div class="panel-body bg-primary">
             <div class="row row-table row-flush">
                <div class="col-xs-12">
-                  <p class="mb0">$759,781,417.92 <em class="fa fa-level-up">
+                  <p class="mb0">Collaborating With
                      </em>
                   </p>
-                  <h4 class="m0">Market Cap</h4>
-                  <span class="m-t-10"><i class="fa fa-dollar"></i> Total Market Capital
+                  <h4 class="m0">{{company[0]}} ({{company[1]}})</h4>
+                  <span class="m-t-10"> Owner : {{company[2]}}
+                  </span>
+                  <br>
+                  <span class="m-t-10"> Address : {{company[3]}}
                   </span>
                </div>
             </div>
          </div>
       </div>
    </div>
-   <div class="col-lg-3 col-sm-6">
-      <div data-toggle="play-animation" data-play="fadeInDown" data-offset="0" data-delay="500"
-         class="panel widget">
-         <div class="panel-body bg-warning">
-            <div class="row row-table row-flush">
-               <div class="col-xs-12">
-                  <p class="mb0">$1,947,201.24 <em class="fa fa-level-down"></em></p>
-                  <h4 class="m0">Trade Volume</h4>
-                  <span class="f-left m-t-10">
-                     <i class="fa fa-dollar"></i> 24h Trade Volume
-                  </span>
-               </div>
-            </div>
-         </div>
-      </div>
-   </div>
-   <div class="col-lg-3 col-sm-6">
-      <div data-toggle="play-animation" data-play="fadeInDown" data-offset="0" data-delay="1000"
-         class="panel widget">
-         <div class="panel-body bg-danger">
-            <div class="row row-table row-flush">
-               <div class="col-xs-12">
-                  <p class="mb0">32.4 Billions <em class="fa fa-refresh"></em></p>
-                  <h4 class="m0">Circ Supply</h4>
-                  <span class="m-t-10">
-                     <i class="text-c-green f-16 fa fa-refresh"></i> Circulating Supply
-                  </span>
-               </div>
-            </div>
-         </div>
-      </div>
-   </div>
-   <div class="col-lg-3 col-sm-6">
-      <div data-toggle="play-animation" data-play="fadeInDown" data-offset="0" data-delay="1500"
-         class="panel widget">
-         <div class="panel-body bg-success">
-            <div class="row row-table row-flush">
-               <div class="col-xs-12">
-                  <p class="mb0">40 Billions <em class="fa fa-money"></em></p>
-                  <h4 class="m0">Total Supply</h4>
-                  <span class="f-left m-t-10">
-                     <i class="fa fa-money"></i> Total Supply
-                  </span>
-               </div>
-            </div>
-         </div>
-      </div>
-   </div>
+    {% endfor %}
 </div>
 </div>
 {% endblock %}
@@ -957,6 +923,8 @@
    socket.on('connect', function () {
       socket.emit('one coin', data = "{{code}}");
       setInterval(function () { socket.emit('one coin', data = "{{code}}"); }, 5000);
+      socket.emit('order check', data = {{g.user[0]}});
+      setInterval(function () { socket.emit('order check', data = {{g.user[0]}}); }, 3000);
    });
 
    socket.on('coinSpec', function ({chart,coin}) {
@@ -1033,29 +1001,55 @@
    });
 
 
-   function buyUnitInput(totalPrice) {
-
+   function buyUnitInput() {
+   var totalPrice = document.getElementById("buyTotal").value;
+   var avg_price = document.getElementById("buyAverage").value;
+   if(avg_price == 0){
    document.getElementById("buyUnit").value = totalPrice / trade_price;
    }
-   function sellUnitInput(unit) {
+   else{
+   document.getElementById("buyUnit").value = totalPrice / avg_price;
+   }
+   }
+   function sellUnitInput() {
+   var unit = document.getElementById("sellUnit").value;
+   var avg_price = document.getElementById("sellAverage").value;
+   if(avg_price == 0){
    document.getElementById("sellTotal").value = unit * trade_price;
+   }
+   else{
+   document.getElementById("sellTotal").value = unit * avg_price;
+   }
    }
    function placeOrder(type){
    var uid = {{g.user[0]}}
    var code = "{{code}}"
    var num = 0;
-   price = 0;
+   var completed = 0;
+   var price = 0;
    if(type == 1){
-   price = trade_price;
-   num = document.getElementById("buyTotal").value / trade_price;
+   if(document.getElementById('buyAverage').value == 0){
+      price = trade_price;
+      completed = 1;
+      num = document.getElementById("buyTotal").value / trade_price;
+   }
+   else{
+      price = document.getElementById('buyAverage').value;
+      num = document.getElementById("buyTotal").value / price;
+   }
    }
    else{
    num = document.getElementById("sellUnit").value;
-   price = trade_price;
+   if(document.getElementById('sellAverage').value == 0){
+      price = trade_price;
+      completed = 1;
+   }
+   else{
+      price = document.getElementById('sellAverage').value;
+   }
    }
    var date = new Date();
    var trade_type = type;
-   var completed = 1;
    //console.log(new Date(date.getFullYear(), date.getMonth(), date.getDay(), date.getHours(), date.getMinutes(), date.getSeconds()));
   // console.log(""+date.getFullYear()+" "+ (date.getMonth()+1) +" "+date.getDay()+" "+date.getHours()+" "+ date.getMinutes()+" "+ date.getSeconds());
    if(price != 0 && num != 0){
@@ -1064,6 +1058,25 @@
    alert("Order has been placed!");
    location.reload();
    }
+   }
+
+
+   function orderType(type){
+      console.log(type);
+      if(type =='buyMarketOrder'){
+        document.getElementById('buyAverage').value = 0;
+        document.getElementById('buyAverage').disabled = true;
+      }
+      else if(type == 'buyPendingOrder'){
+        document.getElementById('buyAverage').disabled = false;
+      }
+      else if(type == 'sellMarketOrder'){
+        document.getElementById('sellAverage').value = 0;
+        document.getElementById('sellAverage').disabled = true;
+      }
+      else if(type == 'sellPendingOrder'){
+        document.getElementById('sellAverage').disabled = false;
+      }
    }
 </script>
 

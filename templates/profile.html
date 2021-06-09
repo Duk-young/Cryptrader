@@ -20,9 +20,6 @@
    </style>
 {% endblock %}
 {% block content %}
-            <button type="button" class="btn btn-labeled btn-primary pull-right">
-               <span class="btn-label"><i class="fa fa-dollar"></i>
-               </span>Goto Wallet</button>
             <h3>{{g.user[1]}}'s Portfolio
             </h3>
                   <!-- First Row Ends Here -->
@@ -224,7 +221,7 @@
                <!-- Open Orders -->
                <div class="col-md-12">
                   <div class="panel panel-default">
-                     <div class="panel-heading">My Holdings
+                     <div class="panel-heading">My Wallet
                         <a href="#" data-perform="panel-collapse" data-toggle="tooltip" title="Collapse Panel"
                            class="pull-right">
                            <em class="fa fa-minus"></em>
@@ -237,9 +234,9 @@
                                  <th>Code</th>
                                  <th>Name</th>
                                  <th>Amount</th>
-                                 <th>Average Purchase Price</th>
-                                 <th>Total Purchase Price</th>
-                                 <th>Trade Price</th>
+                                 <th>Average Buy Price</th>
+                                 <th>Buy</th>
+                                 <th>Current Trade</th>
                                  <th>Evaluation</th>
                                  <th>Rate of Return</th>
                               </tr>
@@ -355,6 +352,8 @@ anychart.onDocumentReady(function() {
       socket.on('connect', function () {
          socket.emit('my holdings', data = {{holdings | tojson}});
          setInterval(function () { socket.emit('my holdings', data = {{holdings | tojson}}); }, 1000);
+         socket.emit('order check', data = {{g.user[0]}});
+         setInterval(function () { socket.emit('order check', data = {{g.user[0]}}); }, 3000);
       });
       socket.on('json', function (data) {
          var totalAsset = parseInt({{budget}});

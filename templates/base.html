@@ -10,7 +10,7 @@
    <meta name="keywords"
       content="crypto, Bootstrap, bitcoins, ethereum, dogecoin, iota, ripple, siacoin, exchange, trading platform, crypto trading">
    <meta name="author" content="">
-   <title>Tradify - Responsive Crypto/Stock Trading User Interface</title>
+   <title>Cryptrader</title>
    <link rel="stylesheet" href="{{ url_for('static', filename='app/css/bootstrap.css') }}">
    <link rel="stylesheet" href="{{ url_for('static', filename='plugins/fontawesome/css/font-awesome.css') }}">
    <link rel="stylesheet" href="{{ url_for('static', filename='plugins/animo/animate%2banimo.css') }}">
@@ -34,7 +34,7 @@
       <nav class="navbar navbar-default navbar-top navbar-fixed-top">
          <div class="navbar-header">
             <a href="#" class="navbar-brand">
-               <div class="brand-logo"><i class="fa fa-bitcoin"></i> TRADIFY</div>
+               <div class="brand-logo"><i class="fa fa-bitcoin"></i> CRYPTRADER</div>
                <div class="brand-logo-collapsed"><i class="fa fa-bitcoin"></i></div>
             </a>
          </div>
@@ -47,10 +47,13 @@
                </li>
             </ul>
             <ul class="nav navbar-nav navbar-right mt0">
+               {%with orderCompleted = get_flashed_messages(category_filter=["order_completed"])%}
                <li class="dropdown dropdown-list">
                   <a href="#" data-toggle="dropdown" data-play="fadeIn" class="dropdown-toggle">
                      <em class="fa fa-bell"></em>
-                     <div class="label label-danger">3</div>
+                     {% if orderCompleted %}
+                     <div class="label label-danger">{{orderCompleted|length}}</div>
+                     {% endif %}
                   </a>
                   <ul class="dropdown-menu col-md-4 col-sm-6 col-xs-12">
                      <li>
@@ -65,8 +68,9 @@
                                  </tr>
                               </thead>
                               <tbody>
+                              {% for order in orderCompleted %}
                                  <tr>
-                                    <td>Buy order SC</td>
+                                    <td>{{order}}</td>
                                     <td>
                                        <div class="progress progress-striped progress-xs">
                                           <div role="progressbar" aria-valuenow="100" aria-valuemin="0"
@@ -75,47 +79,12 @@
                                           </div>
                                        </div>
                                     </td>
-                                    <td>
-                                       <em class="fa fa-calendar fa-fw text-muted"></em>02/19/2018
-                                    </td>
                                     <td class="text-center">
                                        Complete
                                     </td>
                                  </tr>
-                                 <tr>
-                                    <td>Sell order SC</td>
-                                    <td>
-                                       <div class="progress progress-striped progress-xs">
-                                          <div role="progressbar" aria-valuenow="50" aria-valuemin="0"
-                                             aria-valuemax="100" class="progress-bar progress-bar-danger w-50-p">
-                                             <span class="sr-only">50% Complete</span>
-                                          </div>
-                                       </div>
-                                    </td>
-                                    <td>
-                                       <em class="fa fa-calendar fa-fw text-muted"></em>02/18/2018
-                                    </td>
-                                    <td class="text-center">
-                                       50% Filled
-                                    </td>
-                                 </tr>
-                                 <tr>
-                                    <td>Buy order IOTA</td>
-                                    <td>
-                                       <div class="progress progress-striped progress-xs">
-                                          <div role="progressbar" aria-valuenow="50" aria-valuemin="0"
-                                             aria-valuemax="100" class="progress-bar progress-bar-success w-50-p">
-                                             <span class="sr-only">50% Complete</span>
-                                          </div>
-                                       </div>
-                                    </td>
-                                    <td>
-                                       <em class="fa fa-calendar fa-fw text-muted"></em>02/17/2018
-                                    </td>
-                                    <td class="text-center">
-                                       50% Filled
-                                    </td>
-                                 </tr>
+                              {% endfor %}
+                              {% endwith %}
                               </tbody>
                            </table>
                         </div>
@@ -208,9 +177,9 @@
                </li>
                 {% if g.user != None %}
                <li class="">
-                  <a href="/bookmarks" title="Dashboard" class="">
+                  <a href="/favorites" title="Dashboard" class="">
                      <em class="fa fa-star"></em>
-                     <span class="item-text">Bookmarks</span>
+                     <span class="item-text">Favorites</span>
                   </a>
                </li>
                {% endif %}

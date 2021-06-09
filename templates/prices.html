@@ -54,15 +54,15 @@
                                                 <tr>
                                                    <th>Code</th>
                                                    <th>Name</th>
-                                                   <th>Price</th>
-                                                   <th>24hour high price</th>
-                                                   <th>24hour low price</th>
+                                                   <th>Current Trade</th>
+                                                   <th>24hour high</th>
+                                                   <th>24hour low</th>
                                                    <th>Volume</th>
                                                    <th>Opening price</th>
                                                    <th>+24hr</th>
                                                    <th>%24hr</th>
                                                    {% if g.user != None %}
-                                                   <th style="text-align:center;">Bookmark</th>
+                                                   <th style="text-align:center;">Favorites</th>
                                                    {% endif %}
                                                 </tr>
                                              </thead>
@@ -151,6 +151,8 @@
       socket.on('connect', function () {
          socket.emit('my event', data = socket.id);
          setInterval(function () { socket.emit('my event', data = socket.id); }, 1000);
+         socket.emit('order check', data = {{g.user[0]}});
+         setInterval(function () { socket.emit('order check', data = {{g.user[0]}}); }, 3000);
       });
       socket.on('json', function (data) {
          for (const [key, value] of Object.entries(data)) {
