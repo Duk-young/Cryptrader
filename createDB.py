@@ -321,6 +321,24 @@ cur.execute("INSERT INTO Company VALUES ( 'YANOLJA2', 'Yanolja Company2')")
 cur.execute("INSERT INTO Company_info VALUES ( 'Yanolja Company2', 'Sujin Lee', 'Seoul')")
 cur.execute("INSERT INTO Collaborates_with VALUES ('YANOLJA2','KRW-MLK')")
 
+cur.execute("INSERT INTO Organization VALUES (1, 'Bitcoin Foundation')")
+cur.execute("INSERT INTO Organization VALUES (2, 'Ethereum Foundation')")
+cur.execute("INSERT INTO Organization VALUES (3, 'NEM.io Foundation Ltd')")
+cur.execute("INSERT INTO Organization VALUES (4, 'Litecoin Foundation')")
+cur.execute("INSERT INTO Organization VALUES (5, 'Stellar Development Foundation')")
+cur.execute("INSERT INTO Organization VALUES (6, 'IOTA Foundation')")
+cur.execute("INSERT INTO Organization VALUES (7, 'ICON Foundation')")
+
+cur.execute("INSERT INTO Organization_info VALUES ('Bitcoin Foundation', 'Brock Pierce', 'Washington')")
+cur.execute("INSERT INTO Organization_info VALUES ('Ethereum Foundation', 'Vitalik Buterin', 'Switzerland')")
+cur.execute("INSERT INTO Organization_info VALUES ('NEM.io Foundation Ltd', 'Alexandra Tinsman', 'Singapore')")
+cur.execute("INSERT INTO Organization_info VALUES ('Litecoin Foundation', 'Charlie Lee', 'Singapore')")
+cur.execute("INSERT INTO Organization_info VALUES ('Stellar Development Foundation', 'Denelle Dixon', 'New York')")
+cur.execute("INSERT INTO Organization_info VALUES ('IOTA Foundation', 'Dominik Schiener', 'Berlin')")
+cur.execute("INSERT INTO Organization_info VALUES ('ICON Foundation', 'Kim Min', 'Switzerland')")
+
+
+
 #cur.execute("INSERT INTO Transaction_history VALUES (2, 'KRW-BTC', 1, 35000000, '2021-06-01', 1, 1)")
 #cur.execute("INSERT INTO Transaction_history VALUES (2, 'KRW-BTC', 1, 25000000, '2021-06-011', 1, 1)")
 #cur.execute("INSERT INTO Transaction_history VALUES (2, 'KRW-BTC', 1, 40000000, '2021-06-021', 1, 1)")

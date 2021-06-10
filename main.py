@@ -218,7 +218,7 @@ def prices():
         flash("Sign in required", 'sign_in')
         return redirect('/')
     coinList = query_db('SELECT * FROM Coins')
-    bookmarks = None;
+    bookmarks = None
     if g.user is not None:
         bookmarks = query_db('SELECT code FROM User_favorites WHERE uid = ?', [g.user[0]])
     return render_template('prices.html', list=coinList, bookmarks=bookmarks)
